@@ -1,0 +1,38 @@
+name:                terra-glide
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/psandahl/terra-glide#readme
+license:             MIT
+license-file:        LICENSE
+author:              Patrik Sandahl
+maintainer:          patrik.sandahl@gmail.com
+copyright:           2017 Patrik Sandahl
+category:            Graphics
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Lib
+  build-depends:       base >= 4.7 && < 5
+                     , gl-scene
+                     , gl-scene-math
+                     , linear
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+
+executable terra-glide
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  build-depends:       base
+                     , gl-scene
+                     , optparse-applicative
+                     , terra-glide
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded
+
+source-repository head
+  type:     git
+  location: https://github.com/psandahl/terra-glide
