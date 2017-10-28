@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
+                     , flow
                      , gl-scene
                      , gl-scene-math
                      , linear
@@ -26,7 +27,12 @@ library
 executable terra-glide
   hs-source-dirs:      app
   main-is:             Main.hs
+  other-modules:       State
+                       Init
+                       Event
+                       Exit
   build-depends:       base
+                     , flow
                      , gl-scene
                      , optparse-applicative
                      , terra-glide
