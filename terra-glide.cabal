@@ -31,6 +31,7 @@ executable terra-glide
                        Init
                        Event
                        Exit
+                       Options
   build-depends:       base
                      , flow
                      , gl-scene
