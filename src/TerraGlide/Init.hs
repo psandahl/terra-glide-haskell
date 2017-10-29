@@ -1,12 +1,12 @@
-module Init
+module TerraGlide.Init
     ( configuration
     , onInit
     ) where
 
-import           Flow    ((<|))
-import           Options (Options (..))
+import           Flow               ((<|))
 import           Scene
-import           State   (State)
+import           TerraGlide.Options (Options (..))
+import           TerraGlide.State   (State)
 
 -- | Make the 'Configuration' for Terra Glide.
 configuration :: Options -> Configuration

@@ -1,4 +1,4 @@
-module State
+module TerraGlide.State
     ( State
     ) where
 

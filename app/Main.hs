@@ -3,13 +3,11 @@ module Main
     ) where
 
 import           Control.Concurrent (setNumCapabilities)
-import           Event              (onEvent)
-import           Exit               (onExit)
 import           Flow               ((<|))
 import           GHC.Conc           (getNumProcessors)
-import           Init               (configuration, onInit)
-import           Options            (Options (..), parseOptions)
 import           Scene              (viewScenes)
+import           TerraGlide         (Options (..), configuration, onEvent,
+                                     onExit, onInit, parseOptions)
 
 main :: IO ()
 main = do

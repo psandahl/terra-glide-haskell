@@ -1,4 +1,4 @@
-module Options
+module TerraGlide.Options
     ( Options (..)
     , parseOptions
     ) where

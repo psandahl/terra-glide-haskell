@@ -15,27 +15,27 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
+  exposed-modules:     TerraGlide
+  other-modules:       TerraGlide.State
+                       TerraGlide.Init
+                       TerraGlide.Event
+                       TerraGlide.Exit
+                       TerraGlide.Options
   build-depends:       base >= 4.7 && < 5
                      , flow
                      , gl-scene
                      , gl-scene-math
                      , linear
+                     , optparse-applicative
   default-language:    Haskell2010
   ghc-options:         -Wall
 
 executable terra-glide
   hs-source-dirs:      app
   main-is:             Main.hs
-  other-modules:       State
-                       Init
-                       Event
-                       Exit
-                       Options
   build-depends:       base
                      , flow
                      , gl-scene
-                     , optparse-applicative
                      , terra-glide
   default-language:    Haskell2010
   ghc-options:         -Wall -threaded

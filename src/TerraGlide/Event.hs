@@ -1,9 +1,9 @@
-module Event
+module TerraGlide.Event
     ( onEvent
     ) where
 
-import           Scene (Event (..), Viewer, close)
-import           State (State)
+import           Scene            (Event (..), Viewer, close)
+import           TerraGlide.State (State)
 
 onEvent :: Viewer -> Event -> State -> IO State
 
