@@ -24,9 +24,11 @@ library
   build-depends:       base >= 4.7 && < 5
                      , flow
                      , gl-scene
+                     , gl-scene-camera
                      , gl-scene-math
                      , linear
                      , optparse-applicative
+                     , vector
   default-language:    Haskell2010
   ghc-options:         -Wall
 
