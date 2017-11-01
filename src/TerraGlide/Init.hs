@@ -1,12 +1,19 @@
+{-# LANGUAGE OverloadedStrings #-}
 module TerraGlide.Init
     ( configuration
     , onInit
     ) where
 
-import           Flow               ((<|))
+import           Data.Vector.Storable             (Vector)
+import qualified Data.Vector.Storable             as Vector
+import           Flow                             ((<|))
+import           Graphics.GL                      (GLuint)
+import           Linear                           (V3 (..))
 import           Scene
-import           TerraGlide.Options (Options (..))
-import           TerraGlide.State   (State)
+import           Scene.Camera                     (Camera, mkCamera)
+import qualified Scene.GL.Attribute.VertexWithPos as WithPos
+import           TerraGlide.Options               (Options (..))
+import           TerraGlide.State                 (State (..))
 
 -- | Make the 'Configuration' for Terra Glide.
 configuration :: Options -> Configuration
@@ -32,9 +39,57 @@ configuration options =
         }
 
 -- | Perform the initialization once gl-scene has started.
-onInit :: Viewer -> IO State
-onInit _ = return ()
+onInit :: Viewer -> IO (Maybe State)
+onInit viewer = do
+    dummyMesh' <- loadDummyMesh viewer
+    dummyProgram' <- loadDummyProgram viewer
+    case (dummyMesh', dummyProgram') of
+        (Right m, Right p) ->
+            return <|
+                Just State
+                    { mainCamera = initMainCamera
+                    , dummyMesh = m
+                    , dummyProgram = p
+                    }
+        (_, Left err) -> do
+            sceneLog viewer <| toLogStr err
+            return Nothing
+        _ -> do
+            sceneLog viewer <| toLogStr ("onInit: Cannot load resources" :: String)
+            return Nothing
+
+initMainCamera :: Camera
+initMainCamera =
+    mkCamera (V3 0 3 10) (V3 0 (-1) (-1)) (V3 0 0 (-1))
 
 toDisplayMode :: Bool -> DisplayMode
 toDisplayMode True  = FullScreen
 toDisplayMode False = Windowed 1024 768
+
+-- Dummy stuff while developing camera functionality.
+
+loadDummyMesh :: Viewer -> IO (Either String Mesh)
+loadDummyMesh viewer =
+    meshFromRequest viewer <| MeshRequest dummyVertices dummyIndices Triangles
+
+loadDummyProgram :: Viewer -> IO (Either String Program)
+loadDummyProgram viewer =
+    programFromFiles viewer <|
+        ProgramRequest [ (Vertex, "resources/shader/dummy.vert")
+                       , (Fragment, "resources/shader/dummy.frag")
+                       ] ["mvpMatrix"]
+
+dummyVertices :: Vector WithPos.Vertex
+dummyVertices =
+    Vector.fromList
+        [ WithPos.Vertex { WithPos.position = V3 (-1) 0 (-1) }
+        , WithPos.Vertex { WithPos.position = V3 1 0 (-1) }
+        , WithPos.Vertex { WithPos.position = V3 (-1) 0 1 }
+        , WithPos.Vertex { WithPos.position = V3 1 0 1 }
+        ]
+
+dummyIndices :: Vector GLuint
+dummyIndices =
+    Vector.fromList
+        [ 1, 0, 2, 1, 2, 3
+        ]

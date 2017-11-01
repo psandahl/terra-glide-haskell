@@ -23,6 +23,7 @@ library
                        TerraGlide.Options
   build-depends:       base >= 4.7 && < 5
                      , flow
+                     , gl
                      , gl-scene
                      , gl-scene-camera
                      , gl-scene-math

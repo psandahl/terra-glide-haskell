@@ -5,5 +5,5 @@ module TerraGlide.Exit
 import           Scene            (Viewer)
 import           TerraGlide.State (State)
 
-onExit :: Viewer -> State -> IO ()
+onExit :: Viewer -> Maybe State -> IO ()
 onExit _ _ = return ()
