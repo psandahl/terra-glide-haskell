@@ -4,7 +4,7 @@ module TerraGlide.Event
     ) where
 
 import           Flow             ((<|))
-import           Linear           (V3 (..), (!*!))
+import           Linear           ((!*!))
 import           Scene
 import qualified Scene.Camera     as Camera
 import           Scene.Math       (Angle (..), mkPerspectiveMatrix)
@@ -35,6 +35,10 @@ onEvent viewer (Frame _ viewport) (Just state) = do
                 ]
             }
     return (Just state)
+
+onEvent viewer (KeyStroke key keyState _) s@(Just _state) = do
+    sceneLog viewer <| toLogStr ("KeyStroke: " ++ show key ++ ", " ++ show keyState)
+    return s
 
 onEvent viewer CloseRequest (Just state) = do
     close viewer

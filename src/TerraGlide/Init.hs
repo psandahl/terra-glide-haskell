@@ -44,7 +44,8 @@ onInit viewer = do
     dummyMesh' <- loadDummyMesh viewer
     dummyProgram' <- loadDummyProgram viewer
     case (dummyMesh', dummyProgram') of
-        (Right m, Right p) ->
+        (Right m, Right p) -> do
+            subscribeKeyboard viewer
             return <|
                 Just State
                     { mainCamera = initMainCamera
