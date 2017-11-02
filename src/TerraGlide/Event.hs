@@ -4,21 +4,18 @@ module TerraGlide.Event
     ) where
 
 import           Flow             ((<|))
-import           Graphics.GL      (GLfloat)
-import           Linear           (M44, V3 (..), (!*!))
+import           Linear           (V3 (..), (!*!))
 import           Scene
 import qualified Scene.Camera     as Camera
-import           Scene.Math       (Angle (..), mkPerspectiveMatrix,
-                                   mkViewMatrix)
+import           Scene.Math       (Angle (..), mkPerspectiveMatrix)
 import           TerraGlide.State (State (..))
 
 onEvent :: Viewer -> Event -> Maybe State -> IO (Maybe State)
 
 onEvent viewer (Frame _ viewport) (Just state) = do
     let perspMatrix = mkPerspectiveMatrix (Degrees 45) viewport 1 100
-        --viewMatrix = Camera.matrix <| mainCamera state
-        viewMatrix = mkViewMatrix (V3 0 3 10) (V3 0 0 0) (V3 0 1 0)
-        mvpMatrix = perspMatrix !*! viewMatrix :: M44 GLfloat
+        viewMatrix = Camera.matrix <| mainCamera state
+        mvpMatrix = perspMatrix !*! viewMatrix
 
     setScene viewer <|
         Scene

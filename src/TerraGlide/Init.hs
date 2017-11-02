@@ -60,7 +60,7 @@ onInit viewer = do
 
 initMainCamera :: Camera
 initMainCamera =
-    mkCamera (V3 0 3 10) (V3 0 (-1) (-1)) (V3 0 0 (-1))
+    mkCamera (V3 0 3 10) (V3 0 (-3) (-10)) (V3 0 0 (-1))
 
 toDisplayMode :: Bool -> DisplayMode
 toDisplayMode True  = FullScreen
