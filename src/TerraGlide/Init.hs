@@ -10,8 +10,10 @@ import           Flow                             ((<|))
 import           Graphics.GL                      (GLuint)
 import           Linear                           (V3 (..))
 import           Scene
-import           Scene.Camera                     (Camera, mkCamera)
+import           Scene.Camera                     (Camera, Direction (..),
+                                                   mkCamera)
 import qualified Scene.GL.Attribute.VertexWithPos as WithPos
+import           Scene.Math                       (Angle (..))
 import           TerraGlide.Options               (Options (..))
 import           TerraGlide.State                 (State (..))
 
@@ -61,7 +63,9 @@ onInit viewer = do
 
 initMainCamera :: Camera
 initMainCamera =
-    mkCamera (V3 0 3 10) (V3 0 (-3) (-10)) (V3 0 0 (-1))
+    let viewDirection = Direction { heading = Degrees 180, elevation = Degrees (-15) }
+        moveDirection = Direction { heading = Degrees 180, elevation = Degrees 0 }
+    in mkCamera (V3 0 3 10) viewDirection moveDirection
 
 toDisplayMode :: Bool -> DisplayMode
 toDisplayMode True  = FullScreen
