@@ -56,11 +56,19 @@ onFrame viewer (Frame _ viewport) state = do
                 ]
             }
     return state
-onFrame _ _ _ = error "Shall never happen"
+onFrame viewer _ state =
+    impossibleEvent viewer state "onFrame: Called with impossible arguments"
 
 -- | Handle the KeyStroke event.
 onKeyStroke :: Viewer -> Event -> State -> IO State
 onKeyStroke viewer (KeyStroke key keyState _) state = do
     sceneLog viewer <| toLogStr ("KeyStroke: " ++ show key ++ ", " ++ show keyState)
     return state
-onKeyStroke _ _ _ = error "Shall never happen"
+onKeyStroke viewer _ state =
+    impossibleEvent viewer state "onKeyStroke: Called with impossible event"
+
+impossibleEvent :: Viewer -> State -> String -> IO State
+impossibleEvent viewer state msg = do
+    sceneLog viewer <| toLogStr msg
+    close viewer
+    return state
