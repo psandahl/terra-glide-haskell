@@ -78,6 +78,14 @@ onKeyStroke viewer (KeyStroke key keyState _) state = do
             let navigation = mainCameraNavigation state
             return $! state { mainCameraNavigation = navigation { forward = False } }
 
+        (Key'Down, KeyState'Pressed) -> do
+            let navigation = mainCameraNavigation state
+            return $! state { mainCameraNavigation = navigation { backward = True } }
+
+        (Key'Down, KeyState'Released) -> do
+            let navigation = mainCameraNavigation state
+            return $! state { mainCameraNavigation = navigation { backward = False } }
+
         _ ->  return state
 
 onKeyStroke viewer _ state =
