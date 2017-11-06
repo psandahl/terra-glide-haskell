@@ -12,8 +12,10 @@ import qualified Scene.Camera as Camera
 
 -- | Record containing information how a camera shall navigate.
 data CameraNavigation = CameraNavigation
-    { forward  :: !Bool
-    , backward :: !Bool
+    { forward   :: !Bool
+    , backward  :: !Bool
+    , turnLeft  :: !Bool
+    , turnRight :: !Bool
     } deriving Show
 
 -- | Initial navigation record.
@@ -22,6 +24,8 @@ init =
     CameraNavigation
         { forward = False
         , backward = False
+        , turnLeft = False
+        , turnRight = False
         }
 
 animate :: GLfloat -> CameraNavigation -> Camera -> Camera
