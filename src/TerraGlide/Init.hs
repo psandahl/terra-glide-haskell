@@ -14,6 +14,7 @@ import           Scene.Camera                     (Camera, Direction (..),
                                                    mkCamera)
 import qualified Scene.GL.Attribute.VertexWithPos as WithPos
 import           Scene.Math                       (Angle (..))
+import qualified TerraGlide.CameraNavigation      as CameraNavigation
 import           TerraGlide.Options               (Options (..))
 import           TerraGlide.State                 (State (..))
 
@@ -51,6 +52,7 @@ onInit viewer = do
             return <|
                 Just State
                     { mainCamera = initMainCamera
+                    , mainCameraNavigation = CameraNavigation.init
                     , dummyMesh = m
                     , dummyProgram = p
                     }

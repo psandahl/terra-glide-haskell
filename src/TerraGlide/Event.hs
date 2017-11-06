@@ -3,12 +3,14 @@ module TerraGlide.Event
     ( onEvent
     ) where
 
-import           Flow             ((<|))
-import           Linear           ((!*!))
+import           Flow                        ((<|))
+import           Linear                      ((!*!))
 import           Scene
-import qualified Scene.Camera     as Camera
-import           Scene.Math       (Angle (..), mkPerspectiveMatrix)
-import           TerraGlide.State (State (..))
+import qualified Scene.Camera                as Camera
+import           Scene.Math                  (Angle (..), mkPerspectiveMatrix)
+import           TerraGlide.CameraNavigation (CameraNavigation (..))
+import qualified TerraGlide.CameraNavigation as CameraNavigation
+import           TerraGlide.State            (State (..))
 
 -- | Dispatch 'Event'.
 onEvent :: Viewer -> Event -> Maybe State -> IO (Maybe State)
@@ -33,9 +35,12 @@ onEvent viewer _ Nothing = do
 
 -- | Handle the Frame event.
 onFrame :: Viewer -> Event -> State -> IO State
-onFrame viewer (Frame _ viewport) state = do
+onFrame viewer (Frame duration viewport) state = do
     let perspMatrix = mkPerspectiveMatrix (Degrees 45) viewport 1 100
-        viewMatrix = Camera.matrix <| mainCamera state
+        newCamera = CameraNavigation.animate (realToFrac duration)
+                                             (mainCameraNavigation state)
+                                             (mainCamera state)
+        viewMatrix = Camera.matrix newCamera
         mvpMatrix = perspMatrix !*! viewMatrix
 
     setScene viewer <|
@@ -55,7 +60,7 @@ onFrame viewer (Frame _ viewport) state = do
                     }
                 ]
             }
-    return state
+    return state { mainCamera = newCamera }
 onFrame viewer _ state =
     impossibleEvent viewer state "onFrame: Called with impossible arguments"
 
@@ -63,7 +68,18 @@ onFrame viewer _ state =
 onKeyStroke :: Viewer -> Event -> State -> IO State
 onKeyStroke viewer (KeyStroke key keyState _) state = do
     sceneLog viewer <| toLogStr ("KeyStroke: " ++ show key ++ ", " ++ show keyState)
-    return state
+
+    case (key, keyState) of
+        (Key'Up, KeyState'Pressed) -> do
+            let navigation = mainCameraNavigation state
+            return $! state { mainCameraNavigation = navigation { forward = True } }
+
+        (Key'Up, KeyState'Released) -> do
+            let navigation = mainCameraNavigation state
+            return $! state { mainCameraNavigation = navigation { forward = False } }
+
+        _ ->  return state
+
 onKeyStroke viewer _ state =
     impossibleEvent viewer state "onKeyStroke: Called with impossible event"
 
