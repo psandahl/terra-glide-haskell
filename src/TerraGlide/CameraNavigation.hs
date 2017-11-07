@@ -41,6 +41,7 @@ animate :: GLfloat -> CameraNavigation -> Camera -> Camera
 animate duration navigation camera =
     animateForward duration navigation <|
         animateBackward duration navigation <|
+        animateTurnRight duration navigation <|
         animateTurnLeft duration navigation camera
 
 animateForward :: GLfloat -> CameraNavigation -> Camera -> Camera
@@ -59,4 +60,10 @@ animateTurnLeft :: GLfloat -> CameraNavigation -> Camera -> Camera
 animateTurnLeft duration navigation camera =
     if navigation ^. turnLeft
         then Camera.turnLeft (mulAngle (Degrees 180) duration) camera
+        else camera
+
+animateTurnRight :: GLfloat -> CameraNavigation -> Camera -> Camera
+animateTurnRight duration navigation camera =
+    if navigation ^. turnRight
+        then Camera.turnRight (mulAngle (Degrees 180) duration) camera
         else camera
