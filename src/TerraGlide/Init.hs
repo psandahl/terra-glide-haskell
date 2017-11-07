@@ -51,10 +51,10 @@ onInit viewer = do
             subscribeKeyboard viewer
             return <|
                 Just State
-                    { mainCamera = initMainCamera
-                    , mainCameraNavigation = CameraNavigation.init
-                    , dummyMesh = m
-                    , dummyProgram = p
+                    { _mainCamera = initMainCamera
+                    , _mainCameraNavigation = CameraNavigation.init
+                    , _dummyMesh = m
+                    , _dummyProgram = p
                     }
         (_, Left err) -> do
             sceneLog viewer <| toLogStr err

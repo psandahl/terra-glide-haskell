@@ -1,9 +1,15 @@
+{-# LANGUAGE TemplateHaskell #-}
 module TerraGlide.CameraNavigation
-    ( CameraNavigation (..)
+    ( CameraNavigation
     , init
     , animate
+    , forward
+    , backward
+    , turnLeft
+    , turnRight
     ) where
 
+import           Control.Lens (makeLenses)
 import           Flow         ((<|))
 import           Prelude      hiding (init)
 import           Scene        (GLfloat)
@@ -12,20 +18,22 @@ import qualified Scene.Camera as Camera
 
 -- | Record containing information how a camera shall navigate.
 data CameraNavigation = CameraNavigation
-    { forward   :: !Bool
-    , backward  :: !Bool
-    , turnLeft  :: !Bool
-    , turnRight :: !Bool
+    { _forward   :: !Bool
+    , _backward  :: !Bool
+    , _turnLeft  :: !Bool
+    , _turnRight :: !Bool
     } deriving Show
+
+makeLenses ''CameraNavigation
 
 -- | Initial navigation record.
 init :: CameraNavigation
 init =
     CameraNavigation
-        { forward = False
-        , backward = False
-        , turnLeft = False
-        , turnRight = False
+        { _forward = False
+        , _backward = False
+        , _turnLeft = False
+        , _turnRight = False
         }
 
 animate :: GLfloat -> CameraNavigation -> Camera -> Camera
@@ -35,12 +43,12 @@ animate duration navigation camera =
 
 animateForward :: GLfloat -> CameraNavigation -> Camera -> Camera
 animateForward duration navigation camera =
-    if forward navigation
+    if _forward navigation
         then Camera.forward duration camera
         else camera
 
 animateBackward :: GLfloat -> CameraNavigation -> Camera -> Camera
 animateBackward duration navigation camera =
-    if backward navigation
+    if _backward navigation
         then Camera.backward duration camera
         else camera

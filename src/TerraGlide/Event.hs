@@ -3,14 +3,17 @@ module TerraGlide.Event
     ( onEvent
     ) where
 
+import           Control.Lens                (set, view)
 import           Flow                        ((<|))
 import           Linear                      ((!*!))
 import           Scene
 import qualified Scene.Camera                as Camera
 import           Scene.Math                  (Angle (..), mkPerspectiveMatrix)
-import           TerraGlide.CameraNavigation (CameraNavigation (..))
+import           TerraGlide.CameraNavigation (backward, forward)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
-import           TerraGlide.State            (State (..))
+import           TerraGlide.State            (State (..), dummyMesh,
+                                              dummyProgram, mainCamera,
+                                              mainCameraNavigation)
 
 -- | Dispatch 'Event'.
 onEvent :: Viewer -> Event -> Maybe State -> IO (Maybe State)
@@ -38,8 +41,8 @@ onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
     let perspMatrix = mkPerspectiveMatrix (Degrees 45) viewport 1 100
         newCamera = CameraNavigation.animate (realToFrac duration)
-                                             (mainCameraNavigation state)
-                                             (mainCamera state)
+                                             (view mainCameraNavigation state)
+                                             (view mainCamera state)
         viewMatrix = Camera.matrix newCamera
         mvpMatrix = perspMatrix !*! viewMatrix
 
@@ -51,8 +54,8 @@ onFrame viewer (Frame duration viewport) state = do
             , sceneEntities =
                 [ Entity
                     { entitySettings = []
-                    , entityProgram = dummyProgram state
-                    , entityMesh = dummyMesh state
+                    , entityProgram = view dummyProgram state
+                    , entityMesh =  view dummyMesh state
                     , entityUniforms =
                         [ UniformValue "mvpMatrix" mvpMatrix
                         ]
@@ -60,7 +63,7 @@ onFrame viewer (Frame duration viewport) state = do
                     }
                 ]
             }
-    return state { mainCamera = newCamera }
+    return $! set mainCamera newCamera state
 onFrame viewer _ state =
     impossibleEvent viewer state "onFrame: Called with impossible arguments"
 
@@ -70,21 +73,17 @@ onKeyStroke viewer (KeyStroke key keyState _) state = do
     sceneLog viewer <| toLogStr ("KeyStroke: " ++ show key ++ ", " ++ show keyState)
 
     case (key, keyState) of
-        (Key'Up, KeyState'Pressed) -> do
-            let navigation = mainCameraNavigation state
-            return $! state { mainCameraNavigation = navigation { forward = True } }
+        (Key'Up, KeyState'Pressed) ->
+            return $! set (mainCameraNavigation . forward) True state
 
-        (Key'Up, KeyState'Released) -> do
-            let navigation = mainCameraNavigation state
-            return $! state { mainCameraNavigation = navigation { forward = False } }
+        (Key'Up, KeyState'Released) ->
+            return $! set (mainCameraNavigation . forward) False state
 
-        (Key'Down, KeyState'Pressed) -> do
-            let navigation = mainCameraNavigation state
-            return $! state { mainCameraNavigation = navigation { backward = True } }
+        (Key'Down, KeyState'Pressed) ->
+            return $! set (mainCameraNavigation . backward) True state
 
-        (Key'Down, KeyState'Released) -> do
-            let navigation = mainCameraNavigation state
-            return $! state { mainCameraNavigation = navigation { backward = False } }
+        (Key'Down, KeyState'Released) ->
+            return $! set (mainCameraNavigation . backward) False state
 
         _ ->  return state
 

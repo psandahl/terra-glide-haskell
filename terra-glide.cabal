@@ -28,6 +28,7 @@ library
                      , gl-scene
                      , gl-scene-camera
                      , gl-scene-math
+                     , lens
                      , linear
                      , optparse-applicative
                      , vector
