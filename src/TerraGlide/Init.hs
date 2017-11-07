@@ -65,8 +65,8 @@ onInit viewer = do
 
 initMainCamera :: Camera
 initMainCamera =
-    let viewDirection = Direction { heading = Degrees 180, elevation = Degrees (-15) }
-        moveDirection = Direction { heading = Degrees 180, elevation = Degrees 0 }
+    let viewDirection = Direction { _heading = Degrees 180, _elevation = Degrees (-15) }
+        moveDirection = Direction { _heading = Degrees 180, _elevation = Degrees 0 }
     in mkCamera (V3 0 3 10) viewDirection moveDirection
 
 toDisplayMode :: Bool -> DisplayMode

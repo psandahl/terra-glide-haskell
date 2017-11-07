@@ -9,7 +9,7 @@ import           Linear                      ((!*!))
 import           Scene
 import qualified Scene.Camera                as Camera
 import           Scene.Math                  (Angle (..), mkPerspectiveMatrix)
-import           TerraGlide.CameraNavigation (backward, forward)
+import           TerraGlide.CameraNavigation (backward, forward, turnLeft)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
 import           TerraGlide.State            (State (..), dummyMesh,
                                               dummyProgram, mainCamera,
@@ -84,6 +84,12 @@ onKeyStroke viewer (KeyStroke key keyState _) state = do
 
         (Key'Down, KeyState'Released) ->
             return $! set (mainCameraNavigation . backward) False state
+
+        (Key'Left, KeyState'Pressed) ->
+            return $! set (mainCameraNavigation . turnLeft) True state
+
+        (Key'Left, KeyState'Released) ->
+            return $! set (mainCameraNavigation . turnLeft) False state
 
         _ ->  return state
 

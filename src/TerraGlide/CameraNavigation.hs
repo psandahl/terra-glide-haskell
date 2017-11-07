@@ -9,12 +9,13 @@ module TerraGlide.CameraNavigation
     , turnRight
     ) where
 
-import           Control.Lens (makeLenses)
+import           Control.Lens (makeLenses, (^.))
 import           Flow         ((<|))
 import           Prelude      hiding (init)
 import           Scene        (GLfloat)
 import           Scene.Camera (Camera)
 import qualified Scene.Camera as Camera
+import           Scene.Math   (Angle (..), mulAngle)
 
 -- | Record containing information how a camera shall navigate.
 data CameraNavigation = CameraNavigation
@@ -39,16 +40,23 @@ init =
 animate :: GLfloat -> CameraNavigation -> Camera -> Camera
 animate duration navigation camera =
     animateForward duration navigation <|
-        animateBackward duration navigation camera
+        animateBackward duration navigation <|
+        animateTurnLeft duration navigation camera
 
 animateForward :: GLfloat -> CameraNavigation -> Camera -> Camera
 animateForward duration navigation camera =
-    if _forward navigation
+    if navigation ^. forward
         then Camera.forward duration camera
         else camera
 
 animateBackward :: GLfloat -> CameraNavigation -> Camera -> Camera
 animateBackward duration navigation camera =
-    if _backward navigation
+    if navigation ^. backward
         then Camera.backward duration camera
+        else camera
+
+animateTurnLeft :: GLfloat -> CameraNavigation -> Camera -> Camera
+animateTurnLeft duration navigation camera =
+    if navigation ^. turnLeft
+        then Camera.turnLeft (mulAngle (Degrees 180) duration) camera
         else camera
