@@ -3,7 +3,7 @@ module TerraGlide.Event
     ( onEvent
     ) where
 
-import           Control.Lens                (set, view, (.~))
+import           Control.Lens                (set, (.~), (^.))
 import           Flow                        ((<|))
 import           Linear                      ((!*!))
 import           Scene
@@ -42,8 +42,8 @@ onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
     let perspMatrix = mkPerspectiveMatrix (Degrees 45) viewport 1 100
         newCamera = CameraNavigation.animate (realToFrac duration)
-                                             (view mainCameraNavigation state)
-                                             (view mainCamera state)
+                                             (state ^. mainCameraNavigation)
+                                             (state ^. mainCamera)
         viewMatrix = Camera.matrix newCamera
         mvpMatrix = perspMatrix !*! viewMatrix
 
@@ -55,8 +55,8 @@ onFrame viewer (Frame duration viewport) state = do
             , sceneEntities =
                 [ Entity
                     { entitySettings = []
-                    , entityProgram = view dummyProgram state
-                    , entityMesh =  view dummyMesh state
+                    , entityProgram = state ^. dummyProgram
+                    , entityMesh =  state ^. dummyMesh
                     , entityUniforms =
                         [ UniformValue "mvpMatrix" mvpMatrix
                         ]
