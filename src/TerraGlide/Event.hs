@@ -3,7 +3,7 @@ module TerraGlide.Event
     ( onEvent
     ) where
 
-import           Control.Lens                (set, view)
+import           Control.Lens                (set, view, (.~))
 import           Flow                        ((<|))
 import           Linear                      ((!*!))
 import           Scene
@@ -73,32 +73,33 @@ onKeyStroke :: Viewer -> Event -> State -> IO State
 onKeyStroke viewer (KeyStroke key keyState _) state = do
     sceneLog viewer <| toLogStr ("KeyStroke: " ++ show key ++ ", " ++ show keyState)
 
-    case (key, keyState) of
-        (Key'Up, KeyState'Pressed) ->
-            return $! set (mainCameraNavigation . forward) True state
+    return $!
+        case (key, keyState) of
+            (Key'Up, KeyState'Pressed) ->
+                mainCameraNavigation . forward .~ True <| state
 
-        (Key'Up, KeyState'Released) ->
-            return $! set (mainCameraNavigation . forward) False state
+            (Key'Up, KeyState'Released) ->
+                mainCameraNavigation . forward .~ False <| state
 
-        (Key'Down, KeyState'Pressed) ->
-            return $! set (mainCameraNavigation . backward) True state
+            (Key'Down, KeyState'Pressed) ->
+                mainCameraNavigation . backward .~ True <| state
 
-        (Key'Down, KeyState'Released) ->
-            return $! set (mainCameraNavigation . backward) False state
+            (Key'Down, KeyState'Released) ->
+                mainCameraNavigation . backward .~ False <| state
 
-        (Key'Left, KeyState'Pressed) ->
-            return $! set (mainCameraNavigation . turnLeft) True state
+            (Key'Left, KeyState'Pressed) ->
+                mainCameraNavigation . turnLeft .~ True <| state
 
-        (Key'Left, KeyState'Released) ->
-            return $! set (mainCameraNavigation . turnLeft) False state
+            (Key'Left, KeyState'Released) ->
+                mainCameraNavigation . turnLeft .~ False <| state
 
-        (Key'Right, KeyState'Pressed) ->
-            return $! set (mainCameraNavigation . turnRight) True state
+            (Key'Right, KeyState'Pressed) ->
+                mainCameraNavigation . turnRight .~ True <| state
 
-        (Key'Right, KeyState'Released) ->
-            return $! set (mainCameraNavigation . turnRight) False state
+            (Key'Right, KeyState'Released) ->
+                mainCameraNavigation . turnRight .~ False <| state
 
-        _ ->  return state
+            _ -> state
 
 onKeyStroke viewer _ state =
     impossibleEvent viewer state "onKeyStroke: Called with impossible event"
