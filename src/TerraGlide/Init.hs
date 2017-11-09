@@ -48,7 +48,11 @@ onInit viewer = do
     dummyProgram' <- loadDummyProgram viewer
     case (dummyMesh', dummyProgram') of
         (Right m, Right p) -> do
+
             subscribeKeyboard viewer
+            subscribeMouseButton viewer
+            subscribeCursurPos viewer
+
             return <|
                 Just State
                     { _mainCamera = initMainCamera

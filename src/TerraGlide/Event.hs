@@ -20,11 +20,19 @@ import           TerraGlide.State            (State (..), dummyMesh,
 onEvent :: Viewer -> Event -> Maybe State -> IO (Maybe State)
 
 -- Dispatch to local handler.
-onEvent viewer frame@(Frame _duration _viewport) (Just state) =
+onEvent viewer frame@Frame {} (Just state) =
     Just <$> onFrame viewer frame state
 
 -- Dispatch to local handler.
-onEvent viewer key@(KeyStroke _key _keyState _modifierKeys) (Just state) =
+onEvent viewer mouseButton@MouseButton {} (Just state) =
+    Just <$> onMouseButton viewer mouseButton state
+
+-- Dispatch to local handler.
+onEvent viewer cursorPos@CursorPos {} (Just state) =
+    Just <$> onCursorPos viewer cursorPos state
+
+-- Dispatch to local handler.
+onEvent viewer key@KeyStroke {} (Just state) =
     Just <$> onKeyStroke viewer key state
 
 -- Close.
@@ -67,6 +75,25 @@ onFrame viewer (Frame duration viewport) state = do
     return $! set mainCamera newCamera state
 onFrame viewer _ state =
     impossibleEvent viewer state "onFrame: Called with impossible arguments"
+
+-- | Handle the 'MouseButton' event.
+onMouseButton :: Viewer -> Event -> State -> IO State
+onMouseButton viewer (MouseButton button buttonState _ cursorPos) state = do
+    sceneLog viewer <|
+        toLogStr ("onMouseButton: " ++ show button ++ ", " ++ show buttonState ++ ", " ++ show cursorPos)
+
+    return state
+onMouseButton viewer _ state =
+    impossibleEvent viewer state "onMouseButton: Called with impossible arguments"
+
+-- | Handle the 'CursorPos' event.
+onCursorPos :: Viewer -> Event -> State -> IO State
+onCursorPos viewer (CursorPos cursorPos) state = do
+    sceneLog viewer <| toLogStr ("onCursorPos: " ++ show cursorPos)
+
+    return state
+onCursorPos viewer _ state =
+    impossibleEvent viewer state "onCursorPos: Called with impossible arguments"
 
 -- | Handle the KeyStroke event.
 onKeyStroke :: Viewer -> Event -> State -> IO State
