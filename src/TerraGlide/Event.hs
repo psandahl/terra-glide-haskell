@@ -3,14 +3,14 @@ module TerraGlide.Event
     ( onEvent
     ) where
 
-import           Control.Lens                (set, (.~), (^.))
+import           Control.Lens                (set, (%~), (.~), (^.))
 import           Flow                        ((<|))
 import           Linear                      ((!*!))
 import           Scene
 import qualified Scene.Camera                as Camera
 import           Scene.Math                  (Angle (..), mkPerspectiveMatrix)
-import           TerraGlide.CameraNavigation (backward, forward, turnLeft,
-                                              turnRight)
+import           TerraGlide.CameraNavigation (backward, forward, lastCursorPos,
+                                              turnLeft, turnRight)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
 import           TerraGlide.State            (State (..), dummyMesh,
                                               dummyProgram, mainCamera,
@@ -82,16 +82,32 @@ onMouseButton viewer (MouseButton button buttonState _ cursorPos) state = do
     sceneLog viewer <|
         toLogStr ("onMouseButton: " ++ show button ++ ", " ++ show buttonState ++ ", " ++ show cursorPos)
 
-    return state
+    return $!
+        case (button, buttonState) of
+            (MouseButton'1, MouseButtonState'Pressed) ->
+                mainCameraNavigation . lastCursorPos .~ Just cursorPos <| state
+
+            (MouseButton'1, MouseButtonState'Released) ->
+                mainCameraNavigation . lastCursorPos .~ Nothing <| state
+
+            _ -> state
 onMouseButton viewer _ state =
     impossibleEvent viewer state "onMouseButton: Called with impossible arguments"
 
--- | Handle the 'CursorPos' event.
+-- | Handle the 'CursorPos' event. Change the view of the camera and then update
+-- the last cursor position.
 onCursorPos :: Viewer -> Event -> State -> IO State
-onCursorPos viewer (CursorPos cursorPos) state = do
-    sceneLog viewer <| toLogStr ("onCursorPos: " ++ show cursorPos)
+onCursorPos viewer (CursorPos newCursorPos) state = do
+    sceneLog viewer <| toLogStr ("onCursorPos: " ++ show newCursorPos)
 
-    return state
+    return $!
+        case state ^. mainCameraNavigation . lastCursorPos of
+            Just oldCursorPos ->
+                mainCameraNavigation . lastCursorPos .~ Just newCursorPos <|
+                    mainCamera %~ CameraNavigation.changeView newCursorPos oldCursorPos
+                        <| state
+
+            Nothing -> state
 onCursorPos viewer _ state =
     impossibleEvent viewer state "onCursorPos: Called with impossible arguments"
 
