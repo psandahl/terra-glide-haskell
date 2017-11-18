@@ -28,6 +28,8 @@ library
                      , gl-scene
                      , gl-scene-camera
                      , gl-scene-math
+                     , gl-scene-perlin-generator
+                     , worker-pool
                      , lens
                      , linear
                      , optparse-applicative

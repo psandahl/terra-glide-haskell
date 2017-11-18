@@ -15,7 +15,7 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-9.12
+resolver: lts-9.13
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -40,6 +40,8 @@ packages:
 - ../gl-scene
 - ../gl-scene-math
 - ../gl-scene-camera
+- ../gl-scene-perlin-generator
+- ../worker-pool
 
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
