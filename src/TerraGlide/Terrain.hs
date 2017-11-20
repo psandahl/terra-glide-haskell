@@ -16,7 +16,7 @@ data Terrain = Terrain
     { genContext :: !GeneratorContext
     , program    :: !Program
     , mesh       :: !Mesh
-    }
+    } deriving Show
 
 init :: Viewer -> V3 GLfloat -> IO (Either String Terrain)
 init viewer _startPos = do

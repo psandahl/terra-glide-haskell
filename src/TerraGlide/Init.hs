@@ -4,19 +4,15 @@ module TerraGlide.Init
     , onInit
     ) where
 
-import           Data.Vector.Storable             (Vector)
-import qualified Data.Vector.Storable             as Vector
-import           Flow                             ((<|))
-import           Graphics.GL                      (GLuint)
-import           Linear                           (V3 (..))
+import           Flow                        ((<|))
+import           Linear                      (V3 (..))
 import           Scene
-import           Scene.Camera                     (Camera, Direction (..),
-                                                   mkCamera)
-import qualified Scene.GL.Attribute.VertexWithPos as WithPos
-import           Scene.Math                       (Angle (..))
-import qualified TerraGlide.CameraNavigation      as CameraNavigation
-import           TerraGlide.Options               (Options (..))
-import           TerraGlide.State                 (State (..))
+import           Scene.Camera                (Camera, Direction (..), mkCamera)
+import           Scene.Math                  (Angle (..))
+import qualified TerraGlide.CameraNavigation as CameraNavigation
+import           TerraGlide.Options          (Options (..))
+import           TerraGlide.State            (State (..))
+import           TerraGlide.Terrain          as Terrain
 
 -- | Make the 'Configuration' for Terra Glide.
 configuration :: Options -> Configuration
@@ -44,10 +40,9 @@ configuration options =
 -- | Perform the initialization once gl-scene has started.
 onInit :: Viewer -> IO (Maybe State)
 onInit viewer = do
-    dummyMesh' <- loadDummyMesh viewer
-    dummyProgram' <- loadDummyProgram viewer
-    case (dummyMesh', dummyProgram') of
-        (Right m, Right p) -> do
+    eTerrain <- Terrain.init viewer (V3 0 3 10)
+    case eTerrain of
+        Right terrain' -> do
 
             subscribeKeyboard viewer
             subscribeMouseButton viewer
@@ -57,14 +52,10 @@ onInit viewer = do
                 Just State
                     { _mainCamera = initMainCamera
                     , _mainCameraNavigation = CameraNavigation.init
-                    , _dummyMesh = m
-                    , _dummyProgram = p
+                    , _terrain = terrain'
                     }
-        (_, Left err) -> do
+        Left err -> do
             sceneLog viewer <| toLogStr err
-            return Nothing
-        _ -> do
-            sceneLog viewer <| toLogStr ("onInit: Cannot load resources" :: String)
             return Nothing
 
 initMainCamera :: Camera
@@ -76,31 +67,3 @@ initMainCamera =
 toDisplayMode :: Bool -> DisplayMode
 toDisplayMode True  = FullScreen
 toDisplayMode False = Windowed 1024 768
-
--- Dummy stuff while developing camera functionality.
-
-loadDummyMesh :: Viewer -> IO (Either String Mesh)
-loadDummyMesh viewer =
-    meshFromRequest viewer <| MeshRequest dummyVertices dummyIndices Triangles
-
-loadDummyProgram :: Viewer -> IO (Either String Program)
-loadDummyProgram viewer =
-    programFromFiles viewer <|
-        ProgramRequest [ (Vertex, "resources/shader/dummy.vert")
-                       , (Fragment, "resources/shader/dummy.frag")
-                       ] ["mvpMatrix"]
-
-dummyVertices :: Vector WithPos.Vertex
-dummyVertices =
-    Vector.fromList
-        [ WithPos.Vertex { WithPos.position = V3 (-1) 0 (-1) }
-        , WithPos.Vertex { WithPos.position = V3 1 0 (-1) }
-        , WithPos.Vertex { WithPos.position = V3 (-1) 0 1 }
-        , WithPos.Vertex { WithPos.position = V3 1 0 1 }
-        ]
-
-dummyIndices :: Vector GLuint
-dummyIndices =
-    Vector.fromList
-        [ 1, 0, 2, 1, 2, 3
-        ]

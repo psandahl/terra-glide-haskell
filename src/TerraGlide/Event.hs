@@ -5,16 +5,16 @@ module TerraGlide.Event
 
 import           Control.Lens                (set, (%~), (.~), (^.))
 import           Flow                        ((<|))
-import           Linear                      ((!*!))
+import           Linear                      (V3 (..))
 import           Scene
 import qualified Scene.Camera                as Camera
 import           Scene.Math                  (Angle (..), mkPerspectiveMatrix)
 import           TerraGlide.CameraNavigation (backward, forward, lastCursorPos,
                                               turnLeft, turnRight)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
-import           TerraGlide.State            (State (..), dummyMesh,
-                                              dummyProgram, mainCamera,
-                                              mainCameraNavigation)
+import           TerraGlide.State            (State (..), mainCamera,
+                                              mainCameraNavigation, terrain)
+import qualified TerraGlide.Terrain          as Terrain
 
 -- | Dispatch 'Event'.
 onEvent :: Viewer -> Event -> Maybe State -> IO (Maybe State)
@@ -53,24 +53,15 @@ onFrame viewer (Frame duration viewport) state = do
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
         viewMatrix = Camera.matrix newCamera
-        mvpMatrix = perspMatrix !*! viewMatrix
+
+    terrainEntities <- Terrain.getEntities viewer (V3 0 0 0) perspMatrix viewMatrix <| state ^. terrain
 
     setScene viewer <|
         Scene
             { sceneSettings =
                 [ Clear [ColorBufferBit, DepthBufferBit]
                 ]
-            , sceneEntities =
-                [ Entity
-                    { entitySettings = []
-                    , entityProgram = state ^. dummyProgram
-                    , entityMesh =  state ^. dummyMesh
-                    , entityUniforms =
-                        [ UniformValue "mvpMatrix" mvpMatrix
-                        ]
-                    , entityTextures = []
-                    }
-                ]
+            , sceneEntities = terrainEntities
             }
     return $! set mainCamera newCamera state
 onFrame viewer _ state =

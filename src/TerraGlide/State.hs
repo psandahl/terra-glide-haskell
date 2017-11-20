@@ -3,21 +3,19 @@ module TerraGlide.State
     ( State (..) -- TODO: As State is a Lens, change the export.
     , mainCamera
     , mainCameraNavigation
-    , dummyMesh
-    , dummyProgram
+    , terrain
     ) where
 
 import           Control.Lens                (makeLenses)
-import           Scene                       (Mesh, Program)
 import           Scene.Camera                (Camera)
 import           TerraGlide.CameraNavigation (CameraNavigation)
+import           TerraGlide.Terrain          (Terrain)
 
 -- | State record for Terra Glide.
 data State = State
     { _mainCamera           :: !Camera
     , _mainCameraNavigation :: !CameraNavigation
-    , _dummyMesh            :: !Mesh
-    , _dummyProgram         :: !Program
+    , _terrain              :: !Terrain
     } deriving Show
 
 makeLenses ''State
