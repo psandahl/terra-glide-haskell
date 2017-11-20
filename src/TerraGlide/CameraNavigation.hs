@@ -6,6 +6,8 @@ module TerraGlide.CameraNavigation
     , changeView
     , forward
     , backward
+    , up
+    , down
     , turnLeft
     , turnRight
     , lastCursorPos
@@ -24,6 +26,8 @@ import           Scene.Math   (Angle (..), mulAngle)
 data CameraNavigation = CameraNavigation
     { _forward       :: !Bool
     , _backward      :: !Bool
+    , _up            :: !Bool
+    , _down          :: !Bool
     , _turnLeft      :: !Bool
     , _turnRight     :: !Bool
     , _lastCursorPos :: !(Maybe (V2 Double))
@@ -37,6 +41,8 @@ init =
     CameraNavigation
         { _forward = False
         , _backward = False
+        , _up = False
+        , _down = False
         , _turnLeft = False
         , _turnRight = False
         , _lastCursorPos = Nothing
@@ -48,6 +54,8 @@ animate :: GLfloat -> CameraNavigation -> Camera -> Camera
 animate duration navigation camera =
     animateForward duration navigation <|
         animateBackward duration navigation <|
+        animateUp duration navigation <|
+        animateDown duration navigation <|
         animateTurnRight duration navigation <|
         animateTurnLeft duration navigation camera
 
@@ -78,6 +86,18 @@ animateBackward :: GLfloat -> CameraNavigation -> Camera -> Camera
 animateBackward duration navigation camera =
     if navigation ^. backward
         then Camera.backward duration camera
+        else camera
+
+animateUp :: GLfloat -> CameraNavigation -> Camera -> Camera
+animateUp duration navigation camera =
+    if navigation ^. up
+        then Camera.up duration camera
+        else camera
+
+animateDown :: GLfloat -> CameraNavigation -> Camera -> Camera
+animateDown duration navigation camera =
+    if navigation ^. down
+        then Camera.down duration camera
         else camera
 
 animateTurnLeft :: GLfloat -> CameraNavigation -> Camera -> Camera
