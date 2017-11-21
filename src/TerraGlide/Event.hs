@@ -4,6 +4,7 @@ module TerraGlide.Event
     ) where
 
 import           Control.Lens                (set, (%~), (.~), (^.))
+import           Control.Monad               (when)
 import           Flow                        ((<|))
 import           Linear                      (V3 (..))
 import           Scene
@@ -13,7 +14,7 @@ import           TerraGlide.CameraNavigation (backward, down, forward,
                                               lastCursorPos, turnLeft,
                                               turnRight, up)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
-import           TerraGlide.State            (State (..), mainCamera,
+import           TerraGlide.State            (State (..), debug, mainCamera,
                                               mainCameraNavigation, terrain)
 import qualified TerraGlide.Terrain          as Terrain
 
@@ -71,8 +72,8 @@ onFrame viewer _ state =
 -- | Handle the 'MouseButton' event.
 onMouseButton :: Viewer -> Event -> State -> IO State
 onMouseButton viewer (MouseButton button buttonState _ cursorPos) state = do
-    sceneLog viewer <|
-        toLogStr ("onMouseButton: " ++ show button ++ ", " ++ show buttonState ++ ", " ++ show cursorPos)
+    debugLog viewer state <|
+        "onMouseButton: " ++ show button ++ ", " ++ show buttonState ++ ", " ++ show cursorPos
 
     return $!
         case (button, buttonState) of
@@ -90,7 +91,7 @@ onMouseButton viewer _ state =
 -- the last cursor position.
 onCursorPos :: Viewer -> Event -> State -> IO State
 onCursorPos viewer (CursorPos newCursorPos) state = do
-    sceneLog viewer <| toLogStr ("onCursorPos: " ++ show newCursorPos)
+    debugLog viewer state <| "onCursorPos: " ++ show newCursorPos
 
     return $!
         case state ^. mainCameraNavigation . lastCursorPos of
@@ -106,7 +107,7 @@ onCursorPos viewer _ state =
 -- | Handle the KeyStroke event.
 onKeyStroke :: Viewer -> Event -> State -> IO State
 onKeyStroke viewer (KeyStroke key keyState _) state = do
-    sceneLog viewer <| toLogStr ("KeyStroke: " ++ show key ++ ", " ++ show keyState)
+    debugLog viewer state <| "onKeyStroke: " ++ show key ++ ", " ++ show keyState
 
     return $!
         case (key, keyState) of
@@ -156,3 +157,8 @@ impossibleEvent viewer state msg = do
     sceneLog viewer <| toLogStr msg
     close viewer
     return state
+
+debugLog :: Viewer -> State -> String -> IO ()
+debugLog viewer state str =
+    when (state ^. debug) <|
+        sceneLog viewer (toLogStr str)

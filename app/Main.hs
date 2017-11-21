@@ -14,7 +14,9 @@ main = do
     options <- parseOptions
     numProcessors <- getNumProcessors
     setNumCapabilities <| min numProcessors (cores options)
-    result <- viewScenes (configuration options) onInit onEvent onExit
+    result <- viewScenes (configuration options)
+                         (onInit <| debug options)
+                         onEvent onExit
     case result of
         Right () -> return ()
         Left err -> putStrLn err

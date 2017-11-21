@@ -38,8 +38,8 @@ configuration options =
         }
 
 -- | Perform the initialization once gl-scene has started.
-onInit :: Viewer -> IO (Maybe State)
-onInit viewer = do
+onInit :: Bool -> Viewer -> IO (Maybe State)
+onInit debug' viewer = do
     eTerrain <- Terrain.init viewer (V3 0 3 10)
     case eTerrain of
         Right terrain' -> do
@@ -50,7 +50,8 @@ onInit viewer = do
 
             return <|
                 Just State
-                    { _mainCamera = initMainCamera
+                    { _debug = debug'
+                    , _mainCamera = initMainCamera
                     , _mainCameraNavigation = CameraNavigation.init
                     , _terrain = terrain'
                     }

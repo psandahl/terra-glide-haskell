@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module TerraGlide.State
     ( State (..) -- TODO: As State is a Lens, change the export.
+    , debug
     , mainCamera
     , mainCameraNavigation
     , terrain
@@ -13,7 +14,8 @@ import           TerraGlide.Terrain          (Terrain)
 
 -- | State record for Terra Glide.
 data State = State
-    { _mainCamera           :: !Camera
+    { _debug                :: !Bool
+    , _mainCamera           :: !Camera
     , _mainCameraNavigation :: !CameraNavigation
     , _terrain              :: !Terrain
     } deriving Show
