@@ -6,8 +6,9 @@ module TerraGlide.Event
 import           Control.Lens                (set, (%~), (.~), (^.))
 import           Control.Monad               (when)
 import           Flow                        ((<|))
-import           Linear                      (V3 (..))
+import           Linear                      (V3 (..), _x, _y, _z)
 import           Scene
+import           Scene.Camera                (Camera)
 import qualified Scene.Camera                as Camera
 import           Scene.Math                  (Angle (..), mkPerspectiveMatrix)
 import           TerraGlide.CameraNavigation (backward, down, forward,
@@ -17,6 +18,7 @@ import qualified TerraGlide.CameraNavigation as CameraNavigation
 import           TerraGlide.State            (State (..), debug, mainCamera,
                                               mainCameraNavigation, terrain)
 import qualified TerraGlide.Terrain          as Terrain
+import           Text.Printf                 (printf)
 
 -- | Dispatch 'Event'.
 onEvent :: Viewer -> Event -> Maybe State -> IO (Maybe State)
@@ -55,6 +57,8 @@ onFrame viewer (Frame duration viewport) state = do
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
         viewMatrix = Camera.matrix newCamera
+
+    debugCamera viewer state newCamera
 
     terrainEntities <- Terrain.getEntities viewer (V3 0 0 0) perspMatrix viewMatrix <| state ^. terrain
 
@@ -162,3 +166,12 @@ debugLog :: Viewer -> State -> String -> IO ()
 debugLog viewer state str =
     when (state ^. debug) <|
         sceneLog viewer (toLogStr str)
+
+debugCamera :: Viewer -> State -> Camera -> IO ()
+debugCamera viewer state camera =
+    when (CameraNavigation.anyActive <| state ^. mainCameraNavigation) $ do
+        let str = printf "Camera: x=%f y=%f z=%f"
+                        (camera ^. Camera.position . _x)
+                        (camera ^. Camera.position . _y)
+                        (camera ^. Camera.position . _z)
+        debugLog viewer state str

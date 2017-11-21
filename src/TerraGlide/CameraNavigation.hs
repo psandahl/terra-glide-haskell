@@ -2,6 +2,7 @@
 module TerraGlide.CameraNavigation
     ( CameraNavigation
     , init
+    , anyActive
     , animate
     , changeView
     , forward
@@ -47,6 +48,16 @@ init =
         , _turnRight = False
         , _lastCursorPos = Nothing
         }
+
+-- | Tell if any navigation flag is active.
+anyActive :: CameraNavigation -> Bool
+anyActive navigation =
+    _forward navigation ||
+    _backward navigation ||
+    _up navigation ||
+    _down navigation ||
+    _turnLeft navigation ||
+    _turnRight navigation
 
 -- | Make the 'Camera' animate according to the duration and the 'CameraNavigation'
 -- settings.
