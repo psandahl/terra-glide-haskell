@@ -35,7 +35,7 @@ getEntities :: Viewer -> V3 GLfloat -> M44 GLfloat -> M44 GLfloat -> Terrain -> 
 getEntities _viewer _currentPos proj view terrain = do
     let mvpMatrix = proj !*! view
     return [ Entity
-                { entitySettings = []
+                { entitySettings = [ SetPolygonMode FrontAndBack Line ]
                 , entityProgram = program terrain
                 , entityMesh =  mesh terrain
                 , entityUniforms =
