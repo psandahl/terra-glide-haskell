@@ -35,7 +35,11 @@ getEntities :: Viewer -> V3 GLfloat -> M44 GLfloat -> M44 GLfloat -> Terrain -> 
 getEntities _viewer _currentPos proj view terrain = do
     let mvpMatrix = proj !*! view
     return [ Entity
-                { entitySettings = [ SetPolygonMode FrontAndBack Line ]
+                { entitySettings =
+                    [ SetPolygonMode FrontAndBack Line
+                    , Enable CullFace
+                    , SetCullFace Back
+                    ]
                 , entityProgram = program terrain
                 , entityMesh =  mesh terrain
                 , entityUniforms =
@@ -47,7 +51,7 @@ getEntities _viewer _currentPos proj view terrain = do
 
 loadGeneratorContext :: GeneratorContext
 loadGeneratorContext =
-    Gen.defaultGeneratorContext { Gen.weights = Gen.softTerrain }
+    Gen.defaultGeneratorContext { Gen.weights = Gen.rockyTerrain }
 
 loadTerrainProgram :: Viewer -> IO (Either String Program)
 loadTerrainProgram viewer =
@@ -64,7 +68,7 @@ loadDummyTileMesh viewer context = do
                 , Gen.yPos = 0
                 , Gen.width = 256
                 , Gen.height = 256
-                , Gen.scale = 10
+                , Gen.scale = 200
                 }
         tileData = Gen.genSmoothTerrain context query
     meshFromRequest viewer <|
