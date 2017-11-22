@@ -6,7 +6,7 @@ module TerraGlide.Terrain
     ) where
 
 import           Flow                  ((<|))
-import           Linear                (M44, V3, (!*!))
+import           Linear                (M44, V3 (..), (!*!))
 import           Prelude               hiding (init)
 import           Scene
 import           Scene.PerlinGenerator (GeneratorContext)
@@ -44,6 +44,8 @@ getEntities _viewer _currentPos proj view terrain = do
                 , entityMesh =  mesh terrain
                 , entityUniforms =
                     [ UniformValue "mvpMatrix" mvpMatrix
+                    , UniformValue "terrainHeight" terrainHeight
+                    , UniformValue "terrainColor0" terrainColor0
                     ]
                 , entityTextures = []
                 }
@@ -58,7 +60,11 @@ loadTerrainProgram viewer =
     programFromFiles viewer <|
         ProgramRequest [ (Vertex, "resources/shader/terrain-tile.vert")
                        , (Fragment, "resources/shader/terrain-tile.frag")
-                       ] ["mvpMatrix"]
+                       ]
+                       [ "mvpMatrix"
+                       , "terrainHeight"
+                       , "terrainColor0"
+                       ]
 
 loadDummyTileMesh :: Viewer -> GeneratorContext -> IO (Either String Mesh)
 loadDummyTileMesh viewer context = do
@@ -68,8 +74,16 @@ loadDummyTileMesh viewer context = do
                 , Gen.yPos = 0
                 , Gen.width = 256
                 , Gen.height = 256
-                , Gen.scale = 200
+                , Gen.scale = round terrainHeight
                 }
         tileData = Gen.genSmoothTerrain context query
     meshFromRequest viewer <|
         MeshRequest (Gen.vertices tileData) (Gen.indices tileData) Triangles
+
+-- | The maximum height of the terrain, scale factor for the perlin value.
+terrainHeight :: GLfloat
+terrainHeight = 200
+
+-- | The terrain color gradient component used for the lowest terrain.
+terrainColor0 :: V3 GLfloat
+terrainColor0 = V3 (115 / 255) (69 / 255) (35 / 255)
