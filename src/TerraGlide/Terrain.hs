@@ -12,7 +12,8 @@ import           Prelude                hiding (init)
 import           Scene
 import           Scene.PerlinGenerator  (GeneratorContext)
 import qualified Scene.PerlinGenerator  as Gen
-import           TerraGlide.Environment (Environment, terrainColor0,
+import           TerraGlide.Environment (Environment, ambientLightColor,
+                                         ambientLightStrength, terrainColor0,
                                          terrainColor1, terrainColor2,
                                          terrainColor3, terrainHeight)
 
@@ -53,6 +54,8 @@ getEntities _viewer _currentPos proj view environment terrain = do
                     , UniformValue "terrainColor1" <| environment ^. terrainColor1
                     , UniformValue "terrainColor2" <| environment ^. terrainColor2
                     , UniformValue "terrainColor3" <| environment ^. terrainColor3
+                    , UniformValue "ambientLightColor" <| environment ^. ambientLightColor
+                    , UniformValue "ambientLightStrength" <| environment ^. ambientLightStrength
                     ]
                 , entityTextures = []
                 }
@@ -74,6 +77,8 @@ loadTerrainProgram viewer =
                        , "terrainColor1"
                        , "terrainColor2"
                        , "terrainColor3"
+                       , "ambientLightColor"
+                       , "ambientLightStrength"
                        ]
 
 loadDummyTileMesh :: Viewer -> Environment -> GeneratorContext -> IO (Either String Mesh)

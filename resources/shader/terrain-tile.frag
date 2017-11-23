@@ -16,14 +16,20 @@ uniform vec3 terrainColor1;
 uniform vec3 terrainColor2;
 uniform vec3 terrainColor3;
 
+// The ambient light; color and strength.
+uniform vec3 ambientLightColor;
+uniform float ambientLightStrength;
+
 // The final color value.
 out vec4 color;
 
 vec3 terrainColor();
+vec3 ambientLight();
 
 void main()
 {
-  color = vec4(terrainColor(), 1);
+  vec3 unfoggedColor = terrainColor() * ambientLight();
+  color = vec4(unfoggedColor, 1);
 }
 
 // Select the terrain color from the height of the fragment and the terrain
@@ -35,4 +41,10 @@ vec3 terrainColor()
   vec3 color = mix(terrainColor0, terrainColor1, smoothstep(0.0, 0.20, height));
   color = mix(color, terrainColor2, smoothstep(0.20, 0.7, height));
   return mix(color, terrainColor3, smoothstep(0.7, 1.0, height));
+}
+
+// Calculate the ambient light.
+vec3 ambientLight()
+{
+  return ambientLightColor * ambientLightStrength;
 }
