@@ -10,6 +10,7 @@ import           Scene
 import           Scene.Camera                (Camera, Direction (..), mkCamera)
 import           Scene.Math                  (Angle (..))
 import qualified TerraGlide.CameraNavigation as CameraNavigation
+import qualified TerraGlide.Environment      as Environment
 import           TerraGlide.Options          (Options (..))
 import           TerraGlide.State            (State (..))
 import           TerraGlide.Terrain          as Terrain
@@ -40,7 +41,8 @@ configuration options =
 -- | Perform the initialization once gl-scene has started.
 onInit :: Bool -> Viewer -> IO (Maybe State)
 onInit debug' viewer = do
-    eTerrain <- Terrain.init viewer (V3 0 3 10)
+    let environment' = Environment.init
+    eTerrain <- Terrain.init viewer environment' (V3 0 3 10)
     case eTerrain of
         Right terrain' -> do
 
@@ -51,6 +53,7 @@ onInit debug' viewer = do
             return <|
                 Just State
                     { _debug = debug'
+                    , _environment = environment'
                     , _mainCamera = initMainCamera
                     , _mainCameraNavigation = CameraNavigation.init
                     , _terrain = terrain'

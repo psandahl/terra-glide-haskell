@@ -5,12 +5,15 @@ module TerraGlide.Terrain
     , getEntities
     ) where
 
-import           Flow                  ((<|))
-import           Linear                (M44, V3 (..), (!*!))
-import           Prelude               hiding (init)
+import           Control.Lens           ((^.))
+import           Flow                   ((<|))
+import           Linear                 (M44, V3 (..), (!*!))
+import           Prelude                hiding (init)
 import           Scene
-import           Scene.PerlinGenerator (GeneratorContext)
-import qualified Scene.PerlinGenerator as Gen
+import           Scene.PerlinGenerator  (GeneratorContext)
+import qualified Scene.PerlinGenerator  as Gen
+import           TerraGlide.Environment (Environment, terrainColor0,
+                                         terrainHeight)
 
 data Terrain = Terrain
     { genContext :: !GeneratorContext
@@ -18,11 +21,11 @@ data Terrain = Terrain
     , mesh       :: !Mesh
     } deriving Show
 
-init :: Viewer -> V3 GLfloat -> IO (Either String Terrain)
-init viewer _startPos = do
+init :: Viewer -> Environment -> V3 GLfloat -> IO (Either String Terrain)
+init viewer environment _startPos = do
     let context = loadGeneratorContext
     eProgram <- loadTerrainProgram viewer
-    eMesh <- loadDummyTileMesh viewer context
+    eMesh <- loadDummyTileMesh viewer environment context
 
     case (eProgram, eMesh) of
         (Right program', Right mesh') ->
@@ -31,8 +34,9 @@ init viewer _startPos = do
         (Left err, _) -> return <| Left err
         (_, Left err) -> return <| Left err
 
-getEntities :: Viewer -> V3 GLfloat -> M44 GLfloat -> M44 GLfloat -> Terrain -> IO [Entity]
-getEntities _viewer _currentPos proj view terrain = do
+getEntities :: Viewer -> V3 GLfloat -> M44 GLfloat -> M44 GLfloat
+            -> Environment -> Terrain -> IO [Entity]
+getEntities _viewer _currentPos proj view environment terrain = do
     let mvpMatrix = proj !*! view
     return [ Entity
                 { entitySettings =
@@ -44,8 +48,8 @@ getEntities _viewer _currentPos proj view terrain = do
                 , entityMesh =  mesh terrain
                 , entityUniforms =
                     [ UniformValue "mvpMatrix" mvpMatrix
-                    , UniformValue "terrainHeight" terrainHeight
-                    , UniformValue "terrainColor0" terrainColor0
+                    , UniformValue "terrainHeight" <| environment ^. terrainHeight
+                    , UniformValue "terrainColor0" <| environment ^. terrainColor0
                     ]
                 , entityTextures = []
                 }
@@ -66,24 +70,16 @@ loadTerrainProgram viewer =
                        , "terrainColor0"
                        ]
 
-loadDummyTileMesh :: Viewer -> GeneratorContext -> IO (Either String Mesh)
-loadDummyTileMesh viewer context = do
+loadDummyTileMesh :: Viewer -> Environment -> GeneratorContext -> IO (Either String Mesh)
+loadDummyTileMesh viewer environment context = do
     let query =
             Gen.GeneratorQuery
                 { Gen.xPos = 0
                 , Gen.yPos = 0
                 , Gen.width = 256
                 , Gen.height = 256
-                , Gen.scale = round terrainHeight
+                , Gen.scale = round <| environment ^. terrainHeight
                 }
         tileData = Gen.genSmoothTerrain context query
     meshFromRequest viewer <|
         MeshRequest (Gen.vertices tileData) (Gen.indices tileData) Triangles
-
--- | The maximum height of the terrain, scale factor for the perlin value.
-terrainHeight :: GLfloat
-terrainHeight = 200
-
--- | The terrain color gradient component used for the lowest terrain.
-terrainColor0 :: V3 GLfloat
-terrainColor0 = V3 (115 / 255) (69 / 255) (35 / 255)

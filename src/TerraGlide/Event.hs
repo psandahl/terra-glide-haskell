@@ -15,8 +15,9 @@ import           TerraGlide.CameraNavigation (backward, down, forward,
                                               lastCursorPos, turnLeft,
                                               turnRight, up)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
-import           TerraGlide.State            (State (..), debug, mainCamera,
-                                              mainCameraNavigation, terrain)
+import           TerraGlide.State            (State (..), debug, environment,
+                                              mainCamera, mainCameraNavigation,
+                                              terrain)
 import qualified TerraGlide.Terrain          as Terrain
 import           Text.Printf                 (printf)
 
@@ -60,7 +61,10 @@ onFrame viewer (Frame duration viewport) state = do
 
     debugCamera viewer state newCamera
 
-    terrainEntities <- Terrain.getEntities viewer (V3 0 0 0) perspMatrix viewMatrix <| state ^. terrain
+    terrainEntities <-
+        Terrain.getEntities viewer (V3 0 0 0)
+                            perspMatrix viewMatrix
+                            (state ^. environment) (state ^. terrain)
 
     setScene viewer <|
         Scene

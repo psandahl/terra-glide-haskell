@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     TerraGlide
   other-modules:       TerraGlide.CameraNavigation
+                       TerraGlide.Environment
                        TerraGlide.State
                        TerraGlide.Init
                        TerraGlide.Event
