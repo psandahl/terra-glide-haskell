@@ -13,7 +13,8 @@ import           Scene
 import           Scene.PerlinGenerator  (GeneratorContext)
 import qualified Scene.PerlinGenerator  as Gen
 import           TerraGlide.Environment (Environment, terrainColor0,
-                                         terrainHeight)
+                                         terrainColor1, terrainColor2,
+                                         terrainColor3, terrainHeight)
 
 data Terrain = Terrain
     { genContext :: !GeneratorContext
@@ -50,6 +51,9 @@ getEntities _viewer _currentPos proj view environment terrain = do
                     [ UniformValue "mvpMatrix" mvpMatrix
                     , UniformValue "terrainHeight" <| environment ^. terrainHeight
                     , UniformValue "terrainColor0" <| environment ^. terrainColor0
+                    , UniformValue "terrainColor1" <| environment ^. terrainColor1
+                    , UniformValue "terrainColor2" <| environment ^. terrainColor2
+                    , UniformValue "terrainColor3" <| environment ^. terrainColor3
                     ]
                 , entityTextures = []
                 }
@@ -68,6 +72,9 @@ loadTerrainProgram viewer =
                        [ "mvpMatrix"
                        , "terrainHeight"
                        , "terrainColor0"
+                       , "terrainColor1"
+                       , "terrainColor2"
+                       , "terrainColor3"
                        ]
 
 loadDummyTileMesh :: Viewer -> Environment -> GeneratorContext -> IO (Either String Mesh)

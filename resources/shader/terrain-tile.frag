@@ -10,10 +10,13 @@ uniform float terrainHeight;
 // The terrain is shaded using two gradients, where each grandient have to
 // colors. The colors are enumerated from lower terrains to upper.
 uniform vec3 terrainColor0;
+uniform vec3 terrainColor1;
+uniform vec3 terrainColor2;
+uniform vec3 terrainColor3;
 
 out vec4 color;
 
 void main()
 {
-  color = vec4(terrainColor0, 1);
+  color = vec4(terrainColor3, 1);
 }
