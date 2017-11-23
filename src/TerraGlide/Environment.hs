@@ -8,11 +8,14 @@ module TerraGlide.Environment
     , terrainColor3
     , ambientLightColor
     , ambientLightStrength
+    , sunLightDirection
+    , sunLightColor
     , init
     ) where
 
 import           Control.Lens (makeLenses)
-import           Linear       (V3 (..))
+import           Flow         ((<|))
+import           Linear       (V3 (..), normalize)
 import           Prelude      hiding (init)
 import           Scene        (GLfloat)
 
@@ -40,6 +43,12 @@ data Environment = Environment
 
     , _ambientLightStrength :: !GLfloat
     -- ^ The strength of the ambient light.
+
+    , _sunLightDirection    :: !(V3 GLfloat)
+    -- ^ The model space direction towards the sun.
+
+    , _sunLightColor        :: !(V3 GLfloat)
+    -- ^ The color of the sun's light.
     } deriving Show
 
 makeLenses ''Environment
@@ -55,4 +64,6 @@ init =
         , _terrainColor3 = V3 1 1 1
         , _ambientLightColor = V3 1 1 1
         , _ambientLightStrength = 0.2
+        , _sunLightDirection = normalize <| V3 (-1) 1 0 -- East as pos z is north.
+        , _sunLightColor = V3 (182 / 255) (126 / 255) (91 / 255)
         }

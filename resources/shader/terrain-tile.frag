@@ -6,6 +6,9 @@
 // The interpolated, but untransformed, vertex position.
 in vec3 untransformedPosition;
 
+// The transformed, but non normalized, normal.
+in vec3 transformedNormal;
+
 // The maximum height of the terrain.
 uniform float terrainHeight;
 
@@ -20,15 +23,20 @@ uniform vec3 terrainColor3;
 uniform vec3 ambientLightColor;
 uniform float ambientLightStrength;
 
+// The sun's color; transformed and normalized direction and color.
+uniform vec3 transformedSunLightDirection;
+uniform vec3 sunLightColor;
+
 // The final color value.
 out vec4 color;
 
 vec3 terrainColor();
 vec3 ambientLight();
+vec3 sunLight();
 
 void main()
 {
-  vec3 unfoggedColor = terrainColor() * ambientLight();
+  vec3 unfoggedColor = terrainColor() * (ambientLight() + sunLight());
   color = vec4(unfoggedColor, 1);
 }
 
@@ -47,4 +55,13 @@ vec3 terrainColor()
 vec3 ambientLight()
 {
   return ambientLightColor * ambientLightStrength;
+}
+
+// Calculate the diffuse light from the sun.
+vec3 sunLight()
+{
+  vec3 normal = normalize(transformedNormal);
+  float diffuse = max(dot(normal, transformedSunLightDirection), 0);
+
+  return sunLightColor * diffuse;
 }

@@ -7,13 +7,16 @@ module TerraGlide.Terrain
 
 import           Control.Lens           ((^.))
 import           Flow                   ((<|))
-import           Linear                 (M44, V3 (..), (!*!))
+import           Linear                 (M44, V3 (..), normalize, (!*!))
 import           Prelude                hiding (init)
 import           Scene
+import           Scene.Math             (Application (Vector), apply,
+                                         normalMatrix)
 import           Scene.PerlinGenerator  (GeneratorContext)
 import qualified Scene.PerlinGenerator  as Gen
 import           TerraGlide.Environment (Environment, ambientLightColor,
-                                         ambientLightStrength, terrainColor0,
+                                         ambientLightStrength, sunLightColor,
+                                         sunLightDirection, terrainColor0,
                                          terrainColor1, terrainColor2,
                                          terrainColor3, terrainHeight)
 
@@ -39,7 +42,8 @@ init viewer environment _startPos = do
 getEntities :: Viewer -> V3 GLfloat -> M44 GLfloat -> M44 GLfloat
             -> Environment -> Terrain -> IO [Entity]
 getEntities _viewer _currentPos proj view environment terrain = do
-    let mvpMatrix = proj !*! view
+    let mvpMatrix = proj !*! view -- Note: the will likely be a model matrix as well.
+        transformedSunLightDirection = transformSunLight view <| environment ^. sunLightDirection
     return [ Entity
                 { entitySettings =
                     [ Enable CullFace
@@ -49,6 +53,7 @@ getEntities _viewer _currentPos proj view environment terrain = do
                 , entityMesh =  mesh terrain
                 , entityUniforms =
                     [ UniformValue "mvpMatrix" mvpMatrix
+                    , UniformValue "normalMatrix" <| normalMatrix view -- Note: no model matrix
                     , UniformValue "terrainHeight" <| environment ^. terrainHeight
                     , UniformValue "terrainColor0" <| environment ^. terrainColor0
                     , UniformValue "terrainColor1" <| environment ^. terrainColor1
@@ -56,10 +61,15 @@ getEntities _viewer _currentPos proj view environment terrain = do
                     , UniformValue "terrainColor3" <| environment ^. terrainColor3
                     , UniformValue "ambientLightColor" <| environment ^. ambientLightColor
                     , UniformValue "ambientLightStrength" <| environment ^. ambientLightStrength
+                    , UniformValue "transformedSunLightDirection" transformedSunLightDirection
+                    , UniformValue "sunLightColor" <| environment ^. sunLightColor
                     ]
                 , entityTextures = []
                 }
            ]
+
+transformSunLight :: M44 GLfloat -> V3 GLfloat -> V3 GLfloat
+transformSunLight view = normalize . apply view . Vector
 
 loadGeneratorContext :: GeneratorContext
 loadGeneratorContext =
@@ -72,6 +82,7 @@ loadTerrainProgram viewer =
                        , (Fragment, "resources/shader/terrain-tile.frag")
                        ]
                        [ "mvpMatrix"
+                       , "normalMatrix"
                        , "terrainHeight"
                        , "terrainColor0"
                        , "terrainColor1"
@@ -79,6 +90,8 @@ loadTerrainProgram viewer =
                        , "terrainColor3"
                        , "ambientLightColor"
                        , "ambientLightStrength"
+                       , "transformedSunLightDirection"
+                       , "sunLightColor"
                        ]
 
 loadDummyTileMesh :: Viewer -> Environment -> GeneratorContext -> IO (Either String Mesh)
