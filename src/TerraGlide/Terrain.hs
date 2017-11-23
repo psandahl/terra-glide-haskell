@@ -41,8 +41,7 @@ getEntities _viewer _currentPos proj view environment terrain = do
     let mvpMatrix = proj !*! view
     return [ Entity
                 { entitySettings =
-                    [ SetPolygonMode FrontAndBack Line
-                    , Enable CullFace
+                    [ Enable CullFace
                     , SetCullFace Back
                     ]
                 , entityProgram = program terrain

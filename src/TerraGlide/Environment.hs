@@ -36,7 +36,7 @@ makeLenses ''Environment
 init :: Environment
 init =
     Environment
-        { _terrainHeight = 200
+        { _terrainHeight = 300
         , _terrainColor0 = V3 (115 / 255) (69 / 255) (35 / 255)
         , _terrainColor1 = V3 (57 / 255) (118 / 255) (40 / 255)
         , _terrainColor2 = V3 (45 / 255) (58 / 255) (61 / 255)
