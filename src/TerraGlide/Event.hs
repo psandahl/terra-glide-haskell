@@ -53,7 +53,7 @@ onEvent viewer _ Nothing = do
 -- | Handle the Frame event.
 onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
-    let perspMatrix = mkPerspectiveMatrix (Degrees 45) viewport 0.1 1000
+    let perspMatrix = mkPerspectiveMatrix (Degrees 45) viewport 0.1 2000
         newCamera = CameraNavigation.animate (realToFrac duration)
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
