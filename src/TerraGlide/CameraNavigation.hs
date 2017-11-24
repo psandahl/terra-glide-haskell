@@ -63,10 +63,10 @@ anyActive navigation =
 -- settings.
 animate :: GLfloat -> CameraNavigation -> Camera -> Camera
 animate duration navigation camera =
-    animateForward duration navigation <|
-        animateBackward duration navigation <|
-        animateUp duration navigation <|
-        animateDown duration navigation <|
+    animateForward (duration * 20) navigation <|
+        animateBackward (duration * 20) navigation <|
+        animateUp (duration * 8) navigation <|
+        animateDown (duration * 8) navigation <|
         animateTurnRight duration navigation <|
         animateTurnLeft duration navigation camera
 
