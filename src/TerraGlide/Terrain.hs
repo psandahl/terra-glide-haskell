@@ -99,9 +99,9 @@ loadDummyTileMesh viewer environment context = do
     let query =
             Gen.GeneratorQuery
                 { Gen.xPos = 0
-                , Gen.yPos = 0
-                , Gen.width = 256
-                , Gen.height = 256
+                , Gen.yPos = 512
+                , Gen.width = 256 * 4
+                , Gen.height = 256 * 4
                 , Gen.scale = round <| environment ^. terrainHeight
                 }
         tileData = Gen.genSmoothTerrain context query

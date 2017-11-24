@@ -66,7 +66,7 @@ initMainCamera :: Camera
 initMainCamera =
     let viewDirection = Direction { _heading = Degrees 0, _elevation = Degrees (-15) }
         moveDirection = Direction { _heading = Degrees 0, _elevation = Degrees 0 }
-    in mkCamera (V3 0 155 0) viewDirection moveDirection
+    in mkCamera (V3 0 350 0) viewDirection moveDirection
 
 toDisplayMode :: Bool -> DisplayMode
 toDisplayMode True  = FullScreen
