@@ -98,8 +98,8 @@ loadDummyTileMesh :: Viewer -> Environment -> GeneratorContext -> IO (Either Str
 loadDummyTileMesh viewer environment context = do
     let query =
             Gen.GeneratorQuery
-                { Gen.xPos = 0
-                , Gen.yPos = 512
+                { Gen.xPos = 3900
+                , Gen.yPos = 3000
                 , Gen.width = 256 * 4
                 , Gen.height = 256 * 4
                 , Gen.scale = round <| environment ^. terrainHeight
