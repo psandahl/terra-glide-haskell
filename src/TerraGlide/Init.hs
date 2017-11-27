@@ -33,7 +33,7 @@ configuration options =
                 { sceneGraphSettings =
                     [ Clear [ColorBufferBit, DepthBufferBit]
                     ]
-                , initialScene = Nothing
+                , firstScene = Nothing
                 }
         , debugContext = debug options
         }

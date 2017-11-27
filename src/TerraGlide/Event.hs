@@ -71,9 +71,9 @@ onFrame viewer (Frame duration viewport) state = do
             { sceneGraphSettings =
                 [ Clear [ColorBufferBit, DepthBufferBit]
                 ]
-            , initialScene = Just <|
+            , firstScene = Just <|
                 Scene { sceneSettings = []
-                      , renderBuffer = Nothing
+                      , sceneRenderBuffer = Nothing
                       , sceneEntities = terrainEntities
                       , nextScene = Nothing
                       }
