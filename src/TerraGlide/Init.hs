@@ -28,12 +28,12 @@ configuration options =
             , Enable DepthTest
             , SetDepthFunc Less
             ]
-        , initialScene =
-            Scene
-                { sceneSettings =
+        , initialSceneGraph =
+            SceneGraph
+                { sceneGraphSettings =
                     [ Clear [ColorBufferBit, DepthBufferBit]
                     ]
-                , sceneEntities = []
+                , sceneGraphEntities = []
                 }
         , debugContext = debug options
         }

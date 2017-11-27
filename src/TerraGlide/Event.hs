@@ -66,12 +66,12 @@ onFrame viewer (Frame duration viewport) state = do
                             perspMatrix viewMatrix
                             (state ^. environment) (state ^. terrain)
 
-    setScene viewer <|
-        Scene
-            { sceneSettings =
+    setSceneGraph viewer <|
+        SceneGraph
+            { sceneGraphSettings =
                 [ Clear [ColorBufferBit, DepthBufferBit]
                 ]
-            , sceneEntities = terrainEntities
+            , sceneGraphEntities = terrainEntities
             }
     return $! set mainCamera newCamera state
 onFrame viewer _ state =
