@@ -39,34 +39,34 @@ init viewer environment _startPos = do
         (Left err, _) -> return <| Left err
         (_, Left err) -> return <| Left err
 
-getEntities :: Viewer -> V3 GLfloat -> M44 GLfloat -> M44 GLfloat
-            -> Environment -> Terrain -> IO [Entity]
-getEntities _viewer _currentPos proj view environment terrain = do
+getEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
+getEntities proj view environment terrain =
     let mvpMatrix = proj !*! view -- Note: the will likely be a model matrix as well.
         transformedSunLightDirection = transformSunLight view <| environment ^. sunLightDirection
-    return [ Entity
-                { entitySettings =
+    in
+        [ Entity
+            { entitySettings =
                     [ Enable CullFace
                     , SetCullFace Back
                     ]
-                , entityProgram = program terrain
-                , entityMesh =  mesh terrain
-                , entityUniforms =
-                    [ UniformValue "mvpMatrix" mvpMatrix
-                    , UniformValue "normalMatrix" <| normalMatrix view -- Note: no model matrix
-                    , UniformValue "terrainHeight" <| environment ^. terrainHeight
-                    , UniformValue "terrainColor0" <| environment ^. terrainColor0
-                    , UniformValue "terrainColor1" <| environment ^. terrainColor1
-                    , UniformValue "terrainColor2" <| environment ^. terrainColor2
-                    , UniformValue "terrainColor3" <| environment ^. terrainColor3
-                    , UniformValue "ambientLightColor" <| environment ^. ambientLightColor
-                    , UniformValue "ambientLightStrength" <| environment ^. ambientLightStrength
-                    , UniformValue "transformedSunLightDirection" transformedSunLightDirection
-                    , UniformValue "sunLightColor" <| environment ^. sunLightColor
-                    ]
-                , entityTextures = []
-                }
-           ]
+            , entityProgram = program terrain
+            , entityMesh =  mesh terrain
+            , entityUniforms =
+                [ UniformValue "mvpMatrix" mvpMatrix
+                , UniformValue "normalMatrix" <| normalMatrix view -- Note: no model matrix
+                , UniformValue "terrainHeight" <| environment ^. terrainHeight
+                , UniformValue "terrainColor0" <| environment ^. terrainColor0
+                , UniformValue "terrainColor1" <| environment ^. terrainColor1
+                , UniformValue "terrainColor2" <| environment ^. terrainColor2
+                , UniformValue "terrainColor3" <| environment ^. terrainColor3
+                , UniformValue "ambientLightColor" <| environment ^. ambientLightColor
+                , UniformValue "ambientLightStrength" <| environment ^. ambientLightStrength
+                , UniformValue "transformedSunLightDirection" transformedSunLightDirection
+                , UniformValue "sunLightColor" <| environment ^. sunLightColor
+                ]
+            , entityTextures = []
+            }
+        ]
 
 transformSunLight :: M44 GLfloat -> V3 GLfloat -> V3 GLfloat
 transformSunLight view = normalize . apply view . Vector

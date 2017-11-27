@@ -6,7 +6,7 @@ module TerraGlide.Event
 import           Control.Lens                (set, (%~), (.~), (^.))
 import           Control.Monad               (when)
 import           Flow                        ((<|))
-import           Linear                      (V3 (..), _x, _y, _z)
+import           Linear                      (_x, _y, _z)
 import           Scene
 import           Scene.Camera                (Camera)
 import qualified Scene.Camera                as Camera
@@ -50,7 +50,7 @@ onEvent viewer _ Nothing = do
     close viewer
     return Nothing
 
--- | Handle the Frame event.
+-- | Handle the Frame event. Animate stuff and construct the 'SceneGraph'.
 onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
     let perspMatrix = mkPerspectiveMatrix (Degrees 45) viewport 0.1 2000
@@ -58,13 +58,10 @@ onFrame viewer (Frame duration viewport) state = do
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
         viewMatrix = Camera.matrix newCamera
+        terrainEntities =
+            Terrain.getEntities perspMatrix viewMatrix (state ^. environment) (state ^. terrain)
 
     debugCamera viewer state newCamera
-
-    terrainEntities <-
-        Terrain.getEntities viewer (V3 0 0 0)
-                            perspMatrix viewMatrix
-                            (state ^. environment) (state ^. terrain)
 
     setSceneGraph viewer <|
         SceneGraph
@@ -79,6 +76,8 @@ onFrame viewer (Frame duration viewport) state = do
                       }
             }
     return $! set mainCamera newCamera state
+
+-- This shall never happen.
 onFrame viewer _ state =
     impossibleEvent viewer state "onFrame: Called with impossible arguments"
 
