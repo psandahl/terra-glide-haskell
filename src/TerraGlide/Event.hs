@@ -3,7 +3,7 @@ module TerraGlide.Event
     ( onEvent
     ) where
 
-import           Control.Lens                (set, (%~), (.~), (^.))
+import           Control.Lens                ((%~), (.~), (^.))
 import           Control.Monad               (when)
 import           Flow                        ((<|))
 import           Linear                      (_x, _y, _z)
@@ -61,8 +61,10 @@ onFrame viewer (Frame duration viewport) state = do
         terrainEntities =
             Terrain.getEntities perspMatrix viewMatrix (state ^. environment) (state ^. terrain)
 
+    -- Log the camera position.
     debugCamera viewer state newCamera
 
+    -- Construct the new 'SceneGraph'.
     setSceneGraph viewer <|
         SceneGraph
             { sceneGraphSettings =
@@ -75,7 +77,9 @@ onFrame viewer (Frame duration viewport) state = do
                       , nextScene = Nothing
                       }
             }
-    return $! set mainCamera newCamera state
+
+    -- We're done. Update the 'State' with stuff that need to be updated.
+    return $! mainCamera .~ newCamera <| state
 
 -- This shall never happen.
 onFrame viewer _ state =
