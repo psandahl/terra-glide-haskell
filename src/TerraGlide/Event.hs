@@ -53,13 +53,17 @@ onEvent viewer _ Nothing = do
 -- | Handle the Frame event. Animate stuff and construct the 'SceneGraph'.
 onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
-    let perspMatrix = mkPerspectiveMatrix (Degrees 45) viewport 0.1 2000
+    let rearMirror = state ^. rearMirrorFramebuffer
+        mainPersp = mkPerspectiveMatrix (Degrees 45) viewport 0.1 2000
+        rearMirrorPersp = mkPerspectiveMatrix (Degrees 45) (framebufferViewport rearMirror) 0.1 2000
         newCamera = CameraNavigation.animate (realToFrac duration)
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
         viewMatrix = Camera.matrix newCamera
         terrainEntities =
-            Terrain.getEntities perspMatrix viewMatrix (state ^. environment) (state ^. terrain)
+            Terrain.getEntities mainPersp viewMatrix (state ^. environment) (state ^. terrain)
+        rearMirrorEntities =
+            Terrain.getEntities rearMirrorPersp viewMatrix (state ^. environment) (state ^. terrain)
 
     -- Log the camera position.
     debugCamera viewer state newCamera
@@ -76,13 +80,10 @@ onFrame viewer (Frame duration viewport) state = do
                       , sceneEntities = terrainEntities
                       , nextScene = Just <|
                             Scene { sceneSettings =
-                                        [ SetClearColor 1 0 0 0
-                                        , Enable DepthTest
-                                        , SetDepthFunc Less
-                                        , Clear [ColorBufferBit, DepthBufferBit]
+                                        [ Clear [ColorBufferBit, DepthBufferBit]
                                         ]
-                                  , sceneRenderBuffer = Just (state ^. rearMirrorFramebuffer)
-                                  , sceneEntities = []
+                                  , sceneRenderBuffer = Just rearMirror
+                                  , sceneEntities = rearMirrorEntities
                                   , nextScene = Nothing
                                   }
                       }
