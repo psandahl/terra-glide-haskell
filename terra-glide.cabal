@@ -18,6 +18,7 @@ library
   exposed-modules:     TerraGlide
   other-modules:       TerraGlide.CameraNavigation
                        TerraGlide.Environment
+                       TerraGlide.GUI
                        TerraGlide.State
                        TerraGlide.Init
                        TerraGlide.Event
