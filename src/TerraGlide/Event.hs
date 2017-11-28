@@ -15,8 +15,10 @@ import           TerraGlide.CameraNavigation (backward, down, forward,
                                               lastCursorPos, turnLeft,
                                               turnRight, up)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
+import qualified TerraGlide.GUI              as GUI
 import           TerraGlide.State            (State (..), debug, environment,
-                                              mainCamera, mainCameraNavigation,
+                                              gui, mainCamera,
+                                              mainCameraNavigation,
                                               rearMirrorFramebuffer, terrain)
 import qualified TerraGlide.Terrain          as Terrain
 import           Text.Printf                 (printf)
@@ -64,6 +66,7 @@ onFrame viewer (Frame duration viewport) state = do
             Terrain.getEntities mainPersp viewMatrix (state ^. environment) (state ^. terrain)
         rearMirrorEntities =
             Terrain.getEntities rearMirrorPersp viewMatrix (state ^. environment) (state ^. terrain)
+        rearMirrorGUI = GUI.getRearMirrorEntity (framebufferViewport rearMirror) (colorTexture rearMirror)<| state ^. gui
 
     -- Log the camera position.
     debugCamera viewer state newCamera
@@ -85,7 +88,7 @@ onFrame viewer (Frame duration viewport) state = do
                                 [ Clear [ColorBufferBit, DepthBufferBit]
                                 ]
                             , renderingBuffer = Nothing
-                            , renderingEntities = terrainEntities
+                            , renderingEntities = terrainEntities ++ [rearMirrorGUI]
                             , nextRendering = Nothing
                             }
                     }

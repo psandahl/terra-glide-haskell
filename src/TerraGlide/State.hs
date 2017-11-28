@@ -7,6 +7,7 @@ module TerraGlide.State
     , mainCameraNavigation
     , terrain
     , rearMirrorFramebuffer
+    , gui
     ) where
 
 import           Control.Lens                (makeLenses)
@@ -14,6 +15,7 @@ import           Scene                       (Framebuffer)
 import           Scene.Camera                (Camera)
 import           TerraGlide.CameraNavigation (CameraNavigation)
 import           TerraGlide.Environment      (Environment)
+import           TerraGlide.GUI              (GUI)
 import           TerraGlide.Terrain          (Terrain)
 
 -- | State record for Terra Glide.
@@ -30,6 +32,7 @@ data State = State
     -- ^ The terrain manager.
     , _rearMirrorFramebuffer :: !Framebuffer
     -- ^ Framebuffer for the rear mirror view.
+    , _gui                   :: !GUI
     } deriving Show
 
 makeLenses ''State

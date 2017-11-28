@@ -11,9 +11,10 @@ import           Scene.Camera                (Camera, Direction (..), mkCamera)
 import           Scene.Math                  (Angle (..))
 import qualified TerraGlide.CameraNavigation as CameraNavigation
 import qualified TerraGlide.Environment      as Environment
+import qualified TerraGlide.GUI              as GUI
 import           TerraGlide.Options          (Options (..))
 import           TerraGlide.State            (State (..))
-import           TerraGlide.Terrain          as Terrain
+import qualified TerraGlide.Terrain          as Terrain
 
 -- | Make the 'Configuration' for Terra Glide.
 configuration :: Options -> Configuration
@@ -41,11 +42,12 @@ configuration options =
 -- | Perform the initialization once gl-scene has started.
 onInit :: Bool -> Viewer -> IO (Maybe State)
 onInit debug' viewer = do
-    let environment' = Environment.init
+    let environment = Environment.init
     eRearMirror <- framebufferFromRequest viewer (FramebufferRequest 1024 768)
-    eTerrain <- Terrain.init viewer environment' (V3 0 3 10)
-    case (eTerrain, eRearMirror) of
-        (Right terrain', Right rearMirrorFramebuffer') -> do
+    eTerrain <- Terrain.init viewer environment (V3 0 3 10)
+    eGUI <- GUI.init viewer
+    case (eTerrain, eRearMirror, eGUI) of
+        (Right terrain, Right rearMirrorFramebuffer, Right gui) -> do
 
             subscribeKeyboard viewer
             subscribeMouseButton viewer
@@ -54,18 +56,23 @@ onInit debug' viewer = do
             return <|
                 Just State
                     { _debug = debug'
-                    , _environment = environment'
+                    , _environment = environment
                     , _mainCamera = initMainCamera
                     , _mainCameraNavigation = CameraNavigation.init
-                    , _terrain = terrain'
-                    , _rearMirrorFramebuffer = rearMirrorFramebuffer'
+                    , _terrain = terrain
+                    , _rearMirrorFramebuffer = rearMirrorFramebuffer
+                    , _gui = gui
                     }
 
-        (Left err, _) -> do
+        (Left err, _, _) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
-        (_, Left err) -> do
+        (_, Left err, _) -> do
+            sceneLog viewer <| toLogStr err
+            return Nothing
+
+        (_, _, Left err) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
