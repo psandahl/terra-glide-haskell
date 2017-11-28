@@ -42,9 +42,10 @@ configuration options =
 onInit :: Bool -> Viewer -> IO (Maybe State)
 onInit debug' viewer = do
     let environment' = Environment.init
+    eRearMirror <- framebufferFromRequest viewer (FramebufferRequest 1024 768)
     eTerrain <- Terrain.init viewer environment' (V3 0 3 10)
-    case eTerrain of
-        Right terrain' -> do
+    case (eTerrain, eRearMirror) of
+        (Right terrain', Right rearMirrorFramebuffer') -> do
 
             subscribeKeyboard viewer
             subscribeMouseButton viewer
@@ -57,8 +58,14 @@ onInit debug' viewer = do
                     , _mainCamera = initMainCamera
                     , _mainCameraNavigation = CameraNavigation.init
                     , _terrain = terrain'
+                    , _rearMirrorFramebuffer = rearMirrorFramebuffer'
                     }
-        Left err -> do
+
+        (Left err, _) -> do
+            sceneLog viewer <| toLogStr err
+            return Nothing
+
+        (_, Left err) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
