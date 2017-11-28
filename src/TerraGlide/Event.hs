@@ -68,25 +68,27 @@ onFrame viewer (Frame duration viewport) state = do
     -- Log the camera position.
     debugCamera viewer state newCamera
 
-    -- Construct the new 'SceneGraph'.
-    setSceneGraph viewer <|
-        SceneGraph
-            { sceneGraphSettings =
-                [ Clear [ColorBufferBit, DepthBufferBit]
-                ]
-            , firstScene = Just <|
-                Scene { sceneSettings = []
-                      , sceneRenderBuffer = Nothing
-                      , sceneEntities = terrainEntities
-                      , nextScene = Just <|
-                            Scene { sceneSettings =
-                                        [ Clear [ColorBufferBit, DepthBufferBit]
-                                        ]
-                                  , sceneRenderBuffer = Just rearMirror
-                                  , sceneEntities = rearMirrorEntities
-                                  , nextScene = Nothing
-                                  }
-                      }
+    -- Construct the new 'Scene'.
+    setScene viewer <|
+        Scene
+            { sceneSettings = []
+            , firstRendering = Just <|
+                Rendering
+                    { renderingSettings =
+                        [ Clear [ColorBufferBit, DepthBufferBit]
+                        ]
+                    , renderingBuffer = Just rearMirror
+                    , renderingEntities = rearMirrorEntities
+                    , nextRendering = Just <|
+                        Rendering
+                            { renderingSettings =
+                                [ Clear [ColorBufferBit, DepthBufferBit]
+                                ]
+                            , renderingBuffer = Nothing
+                            , renderingEntities = terrainEntities
+                            , nextRendering = Nothing
+                            }
+                    }
             }
 
     -- We're done. Update the 'State' with stuff that need to be updated.
