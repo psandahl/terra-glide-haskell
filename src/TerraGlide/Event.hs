@@ -17,7 +17,7 @@ import           TerraGlide.CameraNavigation (backward, down, forward,
 import qualified TerraGlide.CameraNavigation as CameraNavigation
 import           TerraGlide.State            (State (..), debug, environment,
                                               mainCamera, mainCameraNavigation,
-                                              terrain)
+                                              rearMirrorFramebuffer, terrain)
 import qualified TerraGlide.Terrain          as Terrain
 import           Text.Printf                 (printf)
 
@@ -74,7 +74,17 @@ onFrame viewer (Frame duration viewport) state = do
                 Scene { sceneSettings = []
                       , sceneRenderBuffer = Nothing
                       , sceneEntities = terrainEntities
-                      , nextScene = Nothing
+                      , nextScene = Just <|
+                            Scene { sceneSettings =
+                                        [ SetClearColor 1 0 0 0
+                                        , Enable DepthTest
+                                        , SetDepthFunc Less
+                                        , Clear [ColorBufferBit, DepthBufferBit]
+                                        ]
+                                  , sceneRenderBuffer = Just (state ^. rearMirrorFramebuffer)
+                                  , sceneEntities = []
+                                  , nextScene = Nothing
+                                  }
                       }
             }
 

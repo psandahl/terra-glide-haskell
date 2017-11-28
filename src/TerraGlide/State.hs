@@ -6,6 +6,7 @@ module TerraGlide.State
     , mainCamera
     , mainCameraNavigation
     , terrain
+    , rearMirrorFramebuffer
     ) where
 
 import           Control.Lens                (makeLenses)
