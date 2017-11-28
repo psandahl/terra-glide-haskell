@@ -43,7 +43,7 @@ configuration options =
 onInit :: Bool -> Viewer -> IO (Maybe State)
 onInit debug' viewer = do
     let environment = Environment.init
-    eRearMirror <- framebufferFromRequest viewer (FramebufferRequest 1024 768)
+    eRearMirror <- framebufferFromRequest viewer (FramebufferRequest 640 480)
     eTerrain <- Terrain.init viewer environment (V3 0 3 10)
     eGUI <- GUI.init viewer
     case (eTerrain, eRearMirror, eGUI) of

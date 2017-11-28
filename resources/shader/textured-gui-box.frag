@@ -12,7 +12,7 @@ in vec2 vTexCoord;
 // The fragment color.
 out vec4 color;
 
-const float frame = 0.002;
+const float frame = 0.005;
 
 void main()
 {

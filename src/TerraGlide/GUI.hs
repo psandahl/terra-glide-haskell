@@ -7,10 +7,11 @@ module TerraGlide.GUI
 
 import           Data.Vector.Storable                (Vector, fromList)
 import           Flow                                ((<|))
-import           Linear                              (V2 (..), V3 (..))
+import           Linear                              (M44, V2 (..), V3 (..))
 import           Prelude                             hiding (init)
 import           Scene                               hiding (texture)
 import qualified Scene.GL.Attribute.VertexWithPosTex as WithPosTex
+import           Scene.Math
 
 data GUI = GUI
     { program :: !Program
@@ -31,17 +32,22 @@ init viewer = do
         (_, Left err) ->
             return <| Left err
 
-getRearMirrorEntity :: Viewport -> Texture -> GUI -> Entity
-getRearMirrorEntity _viewport texture gui =
-    Entity
-        { entitySettings =
-            [ SetDepthFunc Always
-            ]
-        , entityMesh = mesh gui
-        , entityProgram = program gui
-        , entityUniforms = [ UniformValue "texture" (0 :: GLint) ]
-        , entityTextures = [ TextureBinding texture 0 ]
-        }
+getRearMirrorEntity :: Viewport -> Viewport -> Texture -> GUI -> Entity
+getRearMirrorEntity viewport1 viewport2 texture gui =
+    let reverseRatio = fromIntegral (height viewport1) / fromIntegral (width viewport1)
+        ratio = fromIntegral (width viewport2) / fromIntegral (height viewport2)
+        modelMatrix = mkScalingMatrix <| V3 0.5 (0.5 * reverseRatio * ratio) 0
+    in Entity
+           { entitySettings =
+               [ SetDepthFunc Always
+               ]
+           , entityMesh = mesh gui
+           , entityProgram = program gui
+           , entityUniforms = [ UniformValue "modelMatrix" (modelMatrix :: M44 GLfloat)
+                              , UniformValue "texture" (0 :: GLint)
+                              ]
+           , entityTextures = [ TextureBinding texture 0 ]
+           }
 
 loadMesh :: Viewer -> IO (Either String Mesh)
 loadMesh viewer =
@@ -58,7 +64,8 @@ loadProgram viewer =
             [ (Vertex, "resources/shader/textured-gui-box.vert")
             , (Fragment, "resources/shader/textured-gui-box.frag")
             ]
-            [ "texture"
+            [ "modelMatrix"
+            , "texture"
             ]
 
 boxVertices :: Vector WithPosTex.Vertex
