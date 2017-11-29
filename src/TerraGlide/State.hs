@@ -6,7 +6,7 @@ module TerraGlide.State
     , mainCamera
     , mainCameraNavigation
     , terrain
-    , rearMirrorFramebuffer
+    , refractionFramebuffer
     , gui
     ) where
 
@@ -30,8 +30,8 @@ data State = State
     -- ^ Navigation flags for the main camera.
     , _terrain               :: !Terrain
     -- ^ The terrain manager.
-    , _rearMirrorFramebuffer :: !Framebuffer
-    -- ^ Framebuffer for the rear mirror view.
+    , _refractionFramebuffer :: !Framebuffer
+    -- ^ Framebuffer for the water refraction texture.
     , _gui                   :: !GUI
     } deriving Show
 

@@ -3,6 +3,7 @@ module TerraGlide.Terrain
     ( Terrain
     , init
     , getStandardRenderingEntities
+    , getRefractionRenderingEntities
     ) where
 
 import           Control.Lens           ((^.))
@@ -43,9 +44,12 @@ init viewer environment _startPos = do
 getStandardRenderingEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
 getStandardRenderingEntities = getEntities []
 
+getRefractionRenderingEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
+getRefractionRenderingEntities = getEntities [ Enable (ClipDistance 0) ]
+
 getEntities :: [Setting] -> M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
 getEntities settings proj view environment terrain =
-    let mvpMatrix = proj !*! view -- Note: the will likely be a model matrix as well.
+    let mvpMatrix = proj !*! view -- Note: there will likely be a model matrix as well.
         transformedSunLightDirection = transformSunLight view <| environment ^. sunLightDirection
     in
         [ Entity

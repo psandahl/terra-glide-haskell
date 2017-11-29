@@ -43,6 +43,11 @@ vec3 sunLight();
 
 void main()
 {
+  // When rendering the refraction texture, set a horizonal clip distance at
+  // the height of the water.
+  vec4 plane = vec4(0, -1, 0, waterHeight);
+  gl_ClipDistance[0] = dot(vec4(position, 1), plane);
+
   fragmentColor = terrainColor() * (ambientLight() + sunLight());
   gl_Position = mvpMatrix * vec4(position, 1);
 }

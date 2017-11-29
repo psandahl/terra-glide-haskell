@@ -19,7 +19,7 @@ import qualified TerraGlide.GUI              as GUI
 import           TerraGlide.State            (State (..), debug, environment,
                                               gui, mainCamera,
                                               mainCameraNavigation,
-                                              rearMirrorFramebuffer, terrain)
+                                              refractionFramebuffer, terrain)
 import qualified TerraGlide.Terrain          as Terrain
 import           Text.Printf                 (printf)
 
@@ -55,18 +55,18 @@ onEvent viewer _ Nothing = do
 -- | Handle the Frame event. Animate stuff and construct the 'SceneGraph'.
 onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
-    let rearMirror = state ^. rearMirrorFramebuffer
+    let refraction = state ^. refractionFramebuffer
         mainPersp = mkPerspectiveMatrix (Degrees 45) viewport 0.1 2000
-        rearMirrorPersp = mkPerspectiveMatrix (Degrees 45) (framebufferViewport rearMirror) 0.1 2000
+        refractionPersp = mkPerspectiveMatrix (Degrees 45) (framebufferViewport refraction) 0.1 2000
         newCamera = CameraNavigation.animate (realToFrac duration)
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
         viewMatrix = Camera.matrix newCamera
         terrainEntities =
             Terrain.getStandardRenderingEntities mainPersp viewMatrix (state ^. environment) (state ^. terrain)
-        rearMirrorEntities =
-            Terrain.getStandardRenderingEntities rearMirrorPersp viewMatrix (state ^. environment) (state ^. terrain)
-        rearMirrorGUI = GUI.getTextureViewEntity (framebufferViewport rearMirror) viewport (colorTexture rearMirror) <| state ^. gui
+        refractionEntities =
+            Terrain.getRefractionRenderingEntities refractionPersp viewMatrix (state ^. environment) (state ^. terrain)
+        textureView = GUI.getTextureViewEntity (framebufferViewport refraction) viewport (colorTexture refraction) <| state ^. gui
 
     -- Log the camera position.
     debugCamera viewer state newCamera
@@ -76,19 +76,19 @@ onFrame viewer (Frame duration viewport) state = do
         Scene
             { sceneSettings = []
             , firstRendering = Just <|
-                Rendering
+                Rendering -- Rendering of the refraction texture.
                     { renderingSettings =
                         [ Clear [ColorBufferBit, DepthBufferBit]
                         ]
-                    , renderingBuffer = Just rearMirror
-                    , renderingEntities = rearMirrorEntities
+                    , renderingBuffer = Just refraction
+                    , renderingEntities = refractionEntities
                     , nextRendering = Just <|
-                        Rendering
+                        Rendering -- Rendering of the final display view.
                             { renderingSettings =
                                 [ Clear [ColorBufferBit, DepthBufferBit]
                                 ]
                             , renderingBuffer = Nothing
-                            , renderingEntities = terrainEntities ++ [rearMirrorGUI]
+                            , renderingEntities = terrainEntities ++ [textureView]
                             , nextRendering = Nothing
                             }
                     }
