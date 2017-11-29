@@ -46,7 +46,7 @@ configuration options =
 onInit :: Bool -> Viewer -> IO (Maybe State)
 onInit debug' viewer = do
     let environment = Environment.init
-    eRefraction <- framebufferFromRequest viewer (FramebufferRequest 640 480)
+    eRefraction <- framebufferFromRequest viewer (FramebufferRequest 1024 768)
     eTerrain <- Terrain.init viewer environment (V3 0 3 10)
     eWater <- Water.init viewer
     eGUI <- GUI.init viewer

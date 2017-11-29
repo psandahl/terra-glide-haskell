@@ -38,8 +38,8 @@ init viewer = do
         (_, Left err) ->
             return <| Left err
 
-getEntity :: M44 GLfloat -> M44 GLfloat -> Environment -> Water -> Entity
-getEntity projMatrix viewMatrix environment water =
+getEntity :: M44 GLfloat -> M44 GLfloat -> Texture -> Environment -> Water -> Entity
+getEntity projMatrix viewMatrix refractionTexture environment water =
     let modelMatrix = mkTranslationMatrix <| V3 0 (environment ^. waterHeight) 0
         mvpMatrix = projMatrix !*! viewMatrix !*! modelMatrix
     in
@@ -50,8 +50,9 @@ getEntity projMatrix viewMatrix environment water =
             , entityUniforms =
                 [ UniformValue "mvpMatrix" mvpMatrix
                 , UniformValue "waterColor" <| environment ^. waterColor
+                , UniformValue "refractionTexture" (0 :: GLint)
                 ]
-            , entityTextures = []
+            , entityTextures = [ TextureBinding refractionTexture 0 ]
             }
 
 loadProgram :: Viewer -> IO (Either String Program)

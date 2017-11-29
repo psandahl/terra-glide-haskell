@@ -7,7 +7,10 @@ layout (location = 0) in vec3 position;
 
 uniform mat4 mvpMatrix;
 
+out vec4 clipSpace;
+
 void main()
 {
-  gl_Position = mvpMatrix * vec4(position, 1);
+  clipSpace = mvpMatrix * vec4(position, 1);
+  gl_Position = clipSpace;
 }

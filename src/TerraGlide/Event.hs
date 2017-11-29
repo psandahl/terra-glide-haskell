@@ -59,8 +59,8 @@ onEvent viewer _ Nothing = do
 onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
     let refraction = state ^. refractionFramebuffer
-        mainPersp = mkPerspectiveMatrix (Degrees 45) viewport 0.1 2000
-        refractionPersp = mkPerspectiveMatrix (Degrees 45) (framebufferViewport refraction) 0.1 2000
+        mainPersp = mkPerspectiveMatrix (Degrees 45) viewport 1 2000
+        refractionPersp = mkPerspectiveMatrix (Degrees 45) (framebufferViewport refraction) 1 2000
         newCamera = CameraNavigation.animate (realToFrac duration)
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
@@ -68,7 +68,7 @@ onFrame viewer (Frame duration viewport) state = do
         terrainEntities =
             Terrain.getStandardRenderingEntities mainPersp viewMatrix (state ^. environment) (state ^. terrain)
         waterEntity =
-            Water.getEntity mainPersp viewMatrix (state ^. environment) (state ^. water)
+            Water.getEntity mainPersp viewMatrix (colorTexture refraction) (state ^. environment) (state ^. water)
         refractionEntities =
             Terrain.getRefractionRenderingEntities refractionPersp viewMatrix (state ^. environment) (state ^. terrain)
         textureView = GUI.getTextureViewEntity (framebufferViewport refraction) viewport (colorTexture refraction) <| state ^. gui
