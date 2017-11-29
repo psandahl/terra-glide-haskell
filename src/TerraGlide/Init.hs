@@ -28,6 +28,8 @@ configuration options =
             [ SetClearColor 0 0 1 0
             , Enable DepthTest
             , SetDepthFunc Less
+            , Enable CullFace
+            , SetCullFace Back
             ]
         , initialScene =
             Scene

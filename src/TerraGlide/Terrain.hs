@@ -45,10 +45,7 @@ getEntities proj view environment terrain =
         transformedSunLightDirection = transformSunLight view <| environment ^. sunLightDirection
     in
         [ Entity
-            { entitySettings =
-                    [ Enable CullFace
-                    , SetCullFace Back
-                    ]
+            { entitySettings = []
             , entityProgram = program terrain
             , entityMesh =  mesh terrain
             , entityUniforms =
