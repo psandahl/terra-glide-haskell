@@ -3,6 +3,7 @@ module TerraGlide.Environment
     ( Environment
     , terrainHeight
     , waterHeight
+    , waterColor
     , terrainColor0
     , terrainColor1
     , terrainColor2
@@ -29,6 +30,9 @@ data Environment = Environment
 
     , _waterHeight          :: !GLfloat
     -- ^ The height of the water in the model.
+
+    , _waterColor           :: !(V3 GLfloat)
+    -- ^ The color of the water.
 
     , _terrainColor0        :: !(V3 GLfloat)
     -- ^ The terrain color gradient component used for the lowest terrain.
@@ -63,6 +67,7 @@ init =
     Environment
         { _terrainHeight = 500
         , _waterHeight = 45
+        , _waterColor = V3 0 0 1
         , _terrainColor0 = V3 (115 / 255) (69 / 255) (35 / 255)
         , _terrainColor1 = V3 (57 / 255) (118 / 255) (40 / 255)
         , _terrainColor2 = V3 (45 / 255) (58 / 255) (61 / 255)

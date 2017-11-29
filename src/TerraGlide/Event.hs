@@ -19,8 +19,10 @@ import qualified TerraGlide.GUI              as GUI
 import           TerraGlide.State            (State (..), debug, environment,
                                               gui, mainCamera,
                                               mainCameraNavigation,
-                                              refractionFramebuffer, terrain)
+                                              refractionFramebuffer, terrain,
+                                              water)
 import qualified TerraGlide.Terrain          as Terrain
+import qualified TerraGlide.Water            as Water
 import           Text.Printf                 (printf)
 
 -- | Dispatch 'Event'.
@@ -53,6 +55,7 @@ onEvent viewer _ Nothing = do
     return Nothing
 
 -- | Handle the Frame event. Animate stuff and construct the 'SceneGraph'.
+-- TODO: Clean it up!
 onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
     let refraction = state ^. refractionFramebuffer
@@ -64,6 +67,8 @@ onFrame viewer (Frame duration viewport) state = do
         viewMatrix = Camera.matrix newCamera
         terrainEntities =
             Terrain.getStandardRenderingEntities mainPersp viewMatrix (state ^. environment) (state ^. terrain)
+        waterEntity =
+            Water.getEntity mainPersp viewMatrix (state ^. environment) (state ^. water)
         refractionEntities =
             Terrain.getRefractionRenderingEntities refractionPersp viewMatrix (state ^. environment) (state ^. terrain)
         textureView = GUI.getTextureViewEntity (framebufferViewport refraction) viewport (colorTexture refraction) <| state ^. gui
@@ -88,7 +93,7 @@ onFrame viewer (Frame duration viewport) state = do
                                 [ Clear [ColorBufferBit, DepthBufferBit]
                                 ]
                             , renderingBuffer = Nothing
-                            , renderingEntities = terrainEntities ++ [textureView]
+                            , renderingEntities = terrainEntities ++ [waterEntity, textureView]
                             , nextRendering = Nothing
                             }
                     }

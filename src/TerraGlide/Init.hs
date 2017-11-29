@@ -15,6 +15,7 @@ import qualified TerraGlide.GUI              as GUI
 import           TerraGlide.Options          (Options (..))
 import           TerraGlide.State            (State (..))
 import qualified TerraGlide.Terrain          as Terrain
+import qualified TerraGlide.Water            as Water
 
 -- | Make the 'Configuration' for Terra Glide.
 configuration :: Options -> Configuration
@@ -47,9 +48,10 @@ onInit debug' viewer = do
     let environment = Environment.init
     eRefraction <- framebufferFromRequest viewer (FramebufferRequest 640 480)
     eTerrain <- Terrain.init viewer environment (V3 0 3 10)
+    eWater <- Water.init viewer
     eGUI <- GUI.init viewer
-    case (eTerrain, eRefraction, eGUI) of
-        (Right terrain, Right refractionFramebuffer, Right gui) -> do
+    case (eTerrain, eWater, eRefraction, eGUI) of
+        (Right terrain, Right water, Right refractionFramebuffer, Right gui) -> do
 
             subscribeKeyboard viewer
             subscribeMouseButton viewer
@@ -62,19 +64,24 @@ onInit debug' viewer = do
                     , _mainCamera = initMainCamera
                     , _mainCameraNavigation = CameraNavigation.init
                     , _terrain = terrain
+                    , _water = water
                     , _refractionFramebuffer = refractionFramebuffer
                     , _gui = gui
                     }
 
-        (Left err, _, _) -> do
+        (Left err, _, _, _) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
-        (_, Left err, _) -> do
+        (_, Left err, _, _) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
-        (_, _, Left err) -> do
+        (_, _, Left err, _) -> do
+            sceneLog viewer <| toLogStr err
+            return Nothing
+
+        (_, _, _, Left err) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 

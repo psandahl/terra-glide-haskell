@@ -6,6 +6,7 @@ module TerraGlide.State
     , mainCamera
     , mainCameraNavigation
     , terrain
+    , water
     , refractionFramebuffer
     , gui
     ) where
@@ -17,6 +18,7 @@ import           TerraGlide.CameraNavigation (CameraNavigation)
 import           TerraGlide.Environment      (Environment)
 import           TerraGlide.GUI              (GUI)
 import           TerraGlide.Terrain          (Terrain)
+import           TerraGlide.Water            (Water)
 
 -- | State record for Terra Glide.
 data State = State
@@ -30,6 +32,8 @@ data State = State
     -- ^ Navigation flags for the main camera.
     , _terrain               :: !Terrain
     -- ^ The terrain manager.
+    , _water                 :: !Water
+    -- ^ The water.
     , _refractionFramebuffer :: !Framebuffer
     -- ^ Framebuffer for the water refraction texture.
     , _gui                   :: !GUI
