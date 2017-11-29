@@ -63,9 +63,9 @@ onFrame viewer (Frame duration viewport) state = do
                                              (state ^. mainCamera)
         viewMatrix = Camera.matrix newCamera
         terrainEntities =
-            Terrain.getEntities mainPersp viewMatrix (state ^. environment) (state ^. terrain)
+            Terrain.getStandardRenderingEntities mainPersp viewMatrix (state ^. environment) (state ^. terrain)
         rearMirrorEntities =
-            Terrain.getEntities rearMirrorPersp viewMatrix (state ^. environment) (state ^. terrain)
+            Terrain.getStandardRenderingEntities rearMirrorPersp viewMatrix (state ^. environment) (state ^. terrain)
         rearMirrorGUI = GUI.getTextureViewEntity (framebufferViewport rearMirror) viewport (colorTexture rearMirror) <| state ^. gui
 
     -- Log the camera position.

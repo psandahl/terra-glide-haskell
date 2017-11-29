@@ -2,7 +2,7 @@
 module TerraGlide.Terrain
     ( Terrain
     , init
-    , getEntities
+    , getStandardRenderingEntities
     ) where
 
 import           Control.Lens           ((^.))
@@ -18,7 +18,8 @@ import           TerraGlide.Environment (Environment, ambientLightColor,
                                          ambientLightStrength, sunLightColor,
                                          sunLightDirection, terrainColor0,
                                          terrainColor1, terrainColor2,
-                                         terrainColor3, terrainHeight)
+                                         terrainColor3, terrainHeight,
+                                         waterHeight)
 
 data Terrain = Terrain
     { genContext :: !GeneratorContext
@@ -39,19 +40,23 @@ init viewer environment _startPos = do
         (Left err, _) -> return <| Left err
         (_, Left err) -> return <| Left err
 
-getEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
-getEntities proj view environment terrain =
+getStandardRenderingEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
+getStandardRenderingEntities = getEntities []
+
+getEntities :: [Setting] -> M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
+getEntities settings proj view environment terrain =
     let mvpMatrix = proj !*! view -- Note: the will likely be a model matrix as well.
         transformedSunLightDirection = transformSunLight view <| environment ^. sunLightDirection
     in
         [ Entity
-            { entitySettings = []
+            { entitySettings = settings
             , entityProgram = program terrain
             , entityMesh =  mesh terrain
             , entityUniforms =
                 [ UniformValue "mvpMatrix" mvpMatrix
                 , UniformValue "normalMatrix" <| normalMatrix view -- Note: no model matrix
                 , UniformValue "terrainHeight" <| environment ^. terrainHeight
+                , UniformValue "waterHeight" <| environment ^. waterHeight
                 , UniformValue "terrainColor0" <| environment ^. terrainColor0
                 , UniformValue "terrainColor1" <| environment ^. terrainColor1
                 , UniformValue "terrainColor2" <| environment ^. terrainColor2
@@ -81,6 +86,7 @@ loadTerrainProgram viewer =
                        [ "mvpMatrix"
                        , "normalMatrix"
                        , "terrainHeight"
+                       , "waterHeight"
                        , "terrainColor0"
                        , "terrainColor1"
                        , "terrainColor2"

@@ -2,6 +2,7 @@
 module TerraGlide.Environment
     ( Environment
     , terrainHeight
+    , waterHeight
     , terrainColor0
     , terrainColor1
     , terrainColor2
@@ -25,6 +26,9 @@ data Environment = Environment
     -- ^ The model space maximun height of the terrain. Scale factor for
     -- generation of perlin values, and the value used for shading of
     -- terrain gradients.
+
+    , _waterHeight          :: !GLfloat
+    -- ^ The height of the water in the model.
 
     , _terrainColor0        :: !(V3 GLfloat)
     -- ^ The terrain color gradient component used for the lowest terrain.
@@ -58,6 +62,7 @@ init :: Environment
 init =
     Environment
         { _terrainHeight = 500
+        , _waterHeight = 45
         , _terrainColor0 = V3 (115 / 255) (69 / 255) (35 / 255)
         , _terrainColor1 = V3 (57 / 255) (118 / 255) (40 / 255)
         , _terrainColor2 = V3 (45 / 255) (58 / 255) (61 / 255)

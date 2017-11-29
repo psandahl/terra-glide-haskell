@@ -16,6 +16,9 @@ uniform mat3 normalMatrix;
 // The maximum height of the terrain.
 uniform float terrainHeight;
 
+// The water height.
+uniform float waterHeight;
+
 // The terrain is shaded using two gradients, where each grandient have to
 // colors. The colors are enumerated from lower terrains to upper.
 uniform vec3 terrainColor0;
