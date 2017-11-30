@@ -17,25 +17,31 @@ import           TerraGlide.Environment           (Environment, waterColor,
                                                    waterHeight)
 
 data Water = Water
-    { program :: !Program
-    , mesh    :: !Mesh
+    { program     :: !Program
+    , mesh        :: !Mesh
+    , dudvTexture :: !Texture
     } deriving Show
 
 init :: Viewer -> IO (Either String Water)
 init viewer = do
     eProgram <- loadProgram viewer
     eMesh <- loadMesh viewer
-    case (eProgram, eMesh) of
-        (Right program', Right mesh') ->
+    eDudvTexture <- loadDudvMap viewer
+    case (eProgram, eMesh, eDudvTexture) of
+        (Right program', Right mesh', Right dudvTexture') ->
             return <|
                 Right Water { program = program'
                             , mesh = mesh'
+                            , dudvTexture = dudvTexture'
                             }
 
-        (Left err, _) ->
+        (Left err, _, _) ->
             return <| Left err
 
-        (_, Left err) ->
+        (_, Left err, _) ->
+            return <| Left err
+
+        (_, _, Left err) ->
             return <| Left err
 
 getWaterSurface :: M44 GLfloat -> M44 GLfloat -> Texture -> Texture -> Environment -> Water -> Entity
@@ -52,10 +58,12 @@ getWaterSurface projMatrix viewMatrix refractionTexture reflectionTexture enviro
                 , UniformValue "waterColor" <| environment ^. waterColor
                 , UniformValue "refractionTexture" (0 :: GLint)
                 , UniformValue "reflectionTexture" (1 :: GLint)
+                , UniformValue "dudvTexture" (2 :: GLint)
                 ]
             , entityTextures =
                 [ TextureBinding refractionTexture 0
                 , TextureBinding reflectionTexture 1
+                , TextureBinding (dudvTexture water) 2
                 ]
             }
 
@@ -70,6 +78,7 @@ loadProgram viewer =
             , "waterColor"
             , "refractionTexture"
             , "reflectionTexture"
+            , "dudvTexture"
             ]
 
 loadMesh :: Viewer -> IO (Either String Mesh)
@@ -89,3 +98,8 @@ loadVertices =
 loadIndices :: Vector GLuint
 loadIndices =
     fromList [ 1, 0, 2, 1, 2, 3 ]
+
+loadDudvMap :: Viewer -> IO (Either String Texture)
+loadDudvMap viewer =
+    textureFromRequest viewer <|
+        defaultTextureRequest "resources/texture/waterDUDV.png"

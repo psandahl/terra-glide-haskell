@@ -15,6 +15,9 @@ uniform sampler2D refractionTexture;
 // The reflection texture.
 uniform sampler2D reflectionTexture;
 
+// The DuDv texture.
+uniform sampler2D dudvTexture;
+
 // The resulting output color.
 out vec4 color;
 
