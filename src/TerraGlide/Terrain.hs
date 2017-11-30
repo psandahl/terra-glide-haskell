@@ -4,6 +4,7 @@ module TerraGlide.Terrain
     , init
     , getStandardRenderingEntities
     , getRefractionRenderingEntities
+    , getReflectionRenderingEntities
     ) where
 
 import           Control.Lens           ((^.))
@@ -48,6 +49,10 @@ getStandardRenderingEntities = getEntities [] (V4 0 0 0 0)
 getRefractionRenderingEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
 getRefractionRenderingEntities proj view environment =
     getEntities [ Enable (ClipDistance 0) ] (V4 0 (-1) 0 <| environment ^. waterHeight) proj view environment
+
+getReflectionRenderingEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
+getReflectionRenderingEntities proj view environment =
+    getEntities [ Enable (ClipDistance 0) ] (V4 0 1 0 <| -(environment ^. waterHeight)) proj view environment
 
 getEntities :: [Setting] -> V4 GLfloat -> M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
 getEntities settings planeEquation proj view environment terrain =

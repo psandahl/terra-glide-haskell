@@ -15,6 +15,7 @@ import           TerraGlide.CameraNavigation (backward, down, forward,
                                               lastCursorPos, turnLeft,
                                               turnRight, up)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
+import           TerraGlide.Environment      (Environment, waterHeight)
 import qualified TerraGlide.GUI              as GUI
 import           TerraGlide.State            (State (..), debug, environment,
                                               gui, mainCamera,
@@ -208,3 +209,8 @@ debugCamera viewer state camera =
                         (camera ^. Camera.position . _y)
                         (camera ^. Camera.position . _z)
         debugLog viewer state str
+
+mkUnderwaterCamera :: Environment -> Camera -> Camera
+mkUnderwaterCamera environment camera =
+    let diff = camera ^. Camera.position . _y - environment ^. waterHeight
+    in Camera.flipViewElevation <| Camera.down diff camera
