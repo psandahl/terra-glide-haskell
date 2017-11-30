@@ -59,20 +59,48 @@ onEvent viewer _ Nothing = do
 -- TODO: Clean it up!
 onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
+    -- Calculate some values. Start by picking out the refraction framebuffer.
     let refraction = state ^. refractionFramebuffer
-        mainPersp = mkPerspectiveMatrix (Degrees 45) viewport 1 2000
-        refractionPersp = mkPerspectiveMatrix (Degrees 45) (framebufferViewport refraction) 1 2000
+
+        -- Calculate the main projection matrix, the projection used for
+        -- the rendering of the the main scene.
+        mainProjMatrix = mkPerspectiveMatrix (Degrees 45) viewport 1 2000
+
+        -- Calculate the framebuffer projection matrix, used for refraction and
+        -- reflection rendering. Assume they have the same size.
+        fbProjMatrix = mkPerspectiveMatrix (Degrees 45)
+                                           (framebufferViewport refraction)
+                                           1 2000
+
+        -- Now, move the camera proportional to the frame duration.
         newCamera = CameraNavigation.animate (realToFrac duration)
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
-        viewMatrix = Camera.matrix newCamera
-        terrainEntities =
-            Terrain.getStandardRenderingEntities mainPersp viewMatrix (state ^. environment) (state ^. terrain)
-        waterEntity =
-            Water.getEntity mainPersp viewMatrix (colorTexture refraction) (state ^. environment) (state ^. water)
-        refractionEntities =
-            Terrain.getRefractionRenderingEntities refractionPersp viewMatrix (state ^. environment) (state ^. terrain)
-        textureView = GUI.getTextureViewEntity (framebufferViewport refraction) viewport (colorTexture refraction) <| state ^. gui
+
+        -- Calculate the main view matrix.
+        mainViewMatrix = Camera.matrix newCamera
+
+        -- Get the standard terrain rendering.
+        standardTerrain = Terrain.getStandardTerrain mainProjMatrix
+                                                     mainViewMatrix
+                                                     (state ^. environment)
+                                                     (state ^. terrain)
+
+        -- Get the refraction terrain rendering.
+        refractionTerrain = Terrain.getRefractionTerrain fbProjMatrix
+                                                         mainViewMatrix
+                                                         (state ^. environment)
+                                                         (state ^. terrain)
+
+        -- Get the water surface.
+        waterSurface = Water.getWaterSurface mainProjMatrix
+                                             mainViewMatrix (colorTexture refraction)
+                                             (state ^. environment)
+                                             (state ^. water)
+
+        textureDisplay = GUI.getTextureDisplay (framebufferViewport refraction)
+                                               viewport (colorTexture refraction)
+                                               (state ^. gui)
 
     -- Log the camera position.
     debugCamera viewer state newCamera
@@ -87,14 +115,14 @@ onFrame viewer (Frame duration viewport) state = do
                         [ Clear [ColorBufferBit, DepthBufferBit]
                         ]
                     , renderingBuffer = Just refraction
-                    , renderingEntities = refractionEntities
+                    , renderingEntities = refractionTerrain
                     , nextRendering = Just <|
                         Rendering -- Rendering of the final display view.
                             { renderingSettings =
                                 [ Clear [ColorBufferBit, DepthBufferBit]
                                 ]
                             , renderingBuffer = Nothing
-                            , renderingEntities = terrainEntities ++ [waterEntity, textureView]
+                            , renderingEntities = standardTerrain ++ [waterSurface, textureDisplay]
                             , nextRendering = Nothing
                             }
                     }

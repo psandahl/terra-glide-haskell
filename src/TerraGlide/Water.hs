@@ -2,7 +2,7 @@
 module TerraGlide.Water
     ( Water
     , init
-    , getEntity
+    , getWaterSurface
     ) where
 
 import           Control.Lens                     ((^.))
@@ -38,8 +38,8 @@ init viewer = do
         (_, Left err) ->
             return <| Left err
 
-getEntity :: M44 GLfloat -> M44 GLfloat -> Texture -> Environment -> Water -> Entity
-getEntity projMatrix viewMatrix refractionTexture environment water =
+getWaterSurface :: M44 GLfloat -> M44 GLfloat -> Texture -> Environment -> Water -> Entity
+getWaterSurface projMatrix viewMatrix refractionTexture environment water =
     let modelMatrix = mkTranslationMatrix <| V3 0 (environment ^. waterHeight) 0
         mvpMatrix = projMatrix !*! viewMatrix !*! modelMatrix
     in

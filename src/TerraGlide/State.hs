@@ -8,6 +8,7 @@ module TerraGlide.State
     , terrain
     , water
     , refractionFramebuffer
+    , reflectionFramebuffer
     , gui
     ) where
 
@@ -36,6 +37,8 @@ data State = State
     -- ^ The water.
     , _refractionFramebuffer :: !Framebuffer
     -- ^ Framebuffer for the water refraction texture.
+    , _reflectionFramebuffer :: !Framebuffer
+    -- ^ Framebuffer for the water reflection texture.
     , _gui                   :: !GUI
     } deriving Show
 

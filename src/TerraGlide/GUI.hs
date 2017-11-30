@@ -2,7 +2,7 @@
 module TerraGlide.GUI
     ( GUI
     , init
-    , getTextureViewEntity
+    , getTextureDisplay
     ) where
 
 import           Data.Vector.Storable                (Vector, fromList)
@@ -33,8 +33,8 @@ init viewer = do
         (_, Left err) ->
             return <| Left err
 
-getTextureViewEntity :: Viewport -> Viewport -> Texture -> GUI -> Entity
-getTextureViewEntity viewport1 viewport2 texture gui =
+getTextureDisplay :: Viewport -> Viewport -> Texture -> GUI -> Entity
+getTextureDisplay viewport1 viewport2 texture gui =
     let reverseRatio = fromIntegral (height viewport1) / fromIntegral (width viewport1)
         ratio = fromIntegral (width viewport2) / fromIntegral (height viewport2)
         translation = mkTranslationMatrix <| V3 (-0.7) 0.7 0

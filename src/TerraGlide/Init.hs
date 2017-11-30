@@ -47,11 +47,13 @@ onInit :: Bool -> Viewer -> IO (Maybe State)
 onInit debug' viewer = do
     let environment = Environment.init
     eRefraction <- framebufferFromRequest viewer (FramebufferRequest 1024 768)
+    eReflection <- framebufferFromRequest viewer (FramebufferRequest 1024 768)
     eTerrain <- Terrain.init viewer environment (V3 0 3 10)
     eWater <- Water.init viewer
     eGUI <- GUI.init viewer
-    case (eTerrain, eWater, eRefraction, eGUI) of
-        (Right terrain, Right water, Right refractionFramebuffer, Right gui) -> do
+    case (eTerrain, eWater, eRefraction, eReflection, eGUI) of
+        ( Right terrain, Right water, Right refractionFramebuffer,
+          Right reflectionFramebuffer, Right gui) -> do
 
             subscribeKeyboard viewer
             subscribeMouseButton viewer
@@ -66,22 +68,27 @@ onInit debug' viewer = do
                     , _terrain = terrain
                     , _water = water
                     , _refractionFramebuffer = refractionFramebuffer
+                    , _reflectionFramebuffer = reflectionFramebuffer
                     , _gui = gui
                     }
 
-        (Left err, _, _, _) -> do
+        (Left err, _, _, _, _) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
-        (_, Left err, _, _) -> do
+        (_, Left err, _, _, _) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
-        (_, _, Left err, _) -> do
+        (_, _, Left err, _, _) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
-        (_, _, _, Left err) -> do
+        (_, _, _, Left err, _) -> do
+            sceneLog viewer <| toLogStr err
+            return Nothing
+
+        (_, _, _, _, Left err) -> do
             sceneLog viewer <| toLogStr err
             return Nothing
 
