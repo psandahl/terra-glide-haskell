@@ -5,16 +5,17 @@ module TerraGlide.Water
     , getWaterSurface
     ) where
 
-import           Control.Lens                     ((^.))
-import           Data.Vector.Storable             (Vector, fromList)
-import           Flow                             ((<|))
-import           Linear                           (M44, V3 (..), (!*!))
-import           Prelude                          hiding (init)
+import           Control.Lens                        ((^.))
+import           Data.Vector.Storable                (Vector, fromList)
+import           Flow                                ((<|))
+import           Linear                              (M44, V2 (..), V3 (..),
+                                                      (!*!))
+import           Prelude                             hiding (init)
 import           Scene
-import qualified Scene.GL.Attribute.VertexWithPos as WithPos
-import           Scene.Math                       (mkTranslationMatrix)
-import           TerraGlide.Environment           (Environment, waterColor,
-                                                   waterHeight)
+import qualified Scene.GL.Attribute.VertexWithPosTex as WithPosTex
+import           Scene.Math                          (mkTranslationMatrix)
+import           TerraGlide.Environment              (Environment, waterColor,
+                                                      waterHeight)
 
 data Water = Water
     { program     :: !Program
@@ -86,13 +87,13 @@ loadMesh viewer =
     meshFromRequest viewer <|
         MeshRequest loadVertices loadIndices Triangles
 
-loadVertices :: Vector WithPos.Vertex
+loadVertices :: Vector WithPosTex.Vertex
 loadVertices =
     fromList
-        [ WithPos.Vertex <| V3 0 0 0
-        , WithPos.Vertex <| V3 1024 0 0
-        , WithPos.Vertex <| V3 0 0 1024
-        , WithPos.Vertex <| V3 1024 0 1024
+        [ WithPosTex.Vertex (V3 0 0 0) (V2 0 1)
+        , WithPosTex.Vertex (V3 1024 0 0) (V2 1 1)
+        , WithPosTex.Vertex (V3 0 0 1024) (V2 0 0)
+        , WithPosTex.Vertex (V3 1024 0 1024) (V2 1 0)
         ]
 
 loadIndices :: Vector GLuint
