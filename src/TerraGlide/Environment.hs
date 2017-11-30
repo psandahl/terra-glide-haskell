@@ -67,7 +67,7 @@ init =
     Environment
         { _terrainHeight = 500
         , _waterHeight = 45
-        , _waterColor = V3 0 0 1
+        , _waterColor = V3 0 (5 / 255) (25 / 255)
         , _terrainColor0 = V3 (115 / 255) (69 / 255) (35 / 255)
         , _terrainColor1 = V3 (57 / 255) (118 / 255) (40 / 255)
         , _terrainColor2 = V3 (45 / 255) (58 / 255) (61 / 255)
