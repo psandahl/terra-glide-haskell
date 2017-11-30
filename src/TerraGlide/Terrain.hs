@@ -8,7 +8,8 @@ module TerraGlide.Terrain
 
 import           Control.Lens           ((^.))
 import           Flow                   ((<|))
-import           Linear                 (M44, V3 (..), normalize, (!*!))
+import           Linear                 (M44, V3 (..), V4 (..), normalize,
+                                         (!*!))
 import           Prelude                hiding (init)
 import           Scene
 import           Scene.Math             (Application (Vector), apply,
@@ -42,13 +43,14 @@ init viewer environment _startPos = do
         (_, Left err) -> return <| Left err
 
 getStandardRenderingEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
-getStandardRenderingEntities = getEntities []
+getStandardRenderingEntities = getEntities [] (V4 0 0 0 0)
 
 getRefractionRenderingEntities :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
-getRefractionRenderingEntities = getEntities [ Enable (ClipDistance 0) ]
+getRefractionRenderingEntities proj view environment =
+    getEntities [ Enable (ClipDistance 0) ] (V4 0 (-1) 0 <| environment ^. waterHeight) proj view environment
 
-getEntities :: [Setting] -> M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
-getEntities settings proj view environment terrain =
+getEntities :: [Setting] -> V4 GLfloat -> M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
+getEntities settings planeEquation proj view environment terrain =
     let mvpMatrix = proj !*! view -- Note: there will likely be a model matrix as well.
         transformedSunLightDirection = transformSunLight view <| environment ^. sunLightDirection
     in
@@ -60,7 +62,7 @@ getEntities settings proj view environment terrain =
                 [ UniformValue "mvpMatrix" mvpMatrix
                 , UniformValue "normalMatrix" <| normalMatrix view -- Note: no model matrix
                 , UniformValue "terrainHeight" <| environment ^. terrainHeight
-                , UniformValue "waterHeight" <| environment ^. waterHeight
+                , UniformValue "planeEquation" planeEquation
                 , UniformValue "terrainColor0" <| environment ^. terrainColor0
                 , UniformValue "terrainColor1" <| environment ^. terrainColor1
                 , UniformValue "terrainColor2" <| environment ^. terrainColor2
@@ -90,7 +92,7 @@ loadTerrainProgram viewer =
                        [ "mvpMatrix"
                        , "normalMatrix"
                        , "terrainHeight"
-                       , "waterHeight"
+                       , "planeEquation"
                        , "terrainColor0"
                        , "terrainColor1"
                        , "terrainColor2"

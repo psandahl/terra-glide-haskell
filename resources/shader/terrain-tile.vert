@@ -16,8 +16,8 @@ uniform mat3 normalMatrix;
 // The maximum height of the terrain.
 uniform float terrainHeight;
 
-// The water height.
-uniform float waterHeight;
+// The plane equation used for refraction clipping.
+uniform vec4 planeEquation;
 
 // The terrain is shaded using two gradients, where each grandient have to
 // colors. The colors are enumerated from lower terrains to upper.
@@ -45,8 +45,7 @@ void main()
 {
   // When rendering the refraction texture, set a horizonal clip distance at
   // the height of the water.
-  vec4 plane = vec4(0, -1, 0, waterHeight);
-  gl_ClipDistance[0] = dot(vec4(position, 1), plane);
+  gl_ClipDistance[0] = dot(vec4(position, 1), planeEquation);
 
   fragmentColor = terrainColor() * (ambientLight() + sunLight());
   gl_Position = mvpMatrix * vec4(position, 1);
