@@ -112,6 +112,7 @@ onFrame viewer (Frame duration viewport) state = do
         waterSurface = Water.getWaterSurface mainProjMatrix
                                              mainViewMatrix
                                              (colorTexture refraction)
+                                             (colorTexture reflection)
                                              (state ^. environment)
                                              (state ^. water)
 

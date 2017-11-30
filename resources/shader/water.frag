@@ -12,6 +12,9 @@ uniform vec3 waterColor;
 // The refraction texture.
 uniform sampler2D refractionTexture;
 
+// The reflection texture.
+uniform sampler2D reflectionTexture;
+
 // The resulting output color.
 out vec4 color;
 
@@ -20,6 +23,12 @@ void main()
   // Make a texture coordinate/normalized device coordinate.
   vec2 texCoord = (clipSpace.xy / clipSpace.w) / 2 + 0.5;
 
+  // Pick the refraction color.
+  vec3 refraction = texture2D(refractionTexture, texCoord).rgb;
+
+  // Pick the reflection color.
+  vec3 reflection = texture2D(reflectionTexture, vec2(texCoord.s, 1 - texCoord.t)).rgb;
+
   // Mix the water color with the refraction texture.
-  color = vec4(mix(texture2D(refractionTexture, texCoord).rgb, waterColor, 0.50), 1);
+  color = vec4(mix(refraction, reflection, 0.5), 1);
 }
