@@ -20,6 +20,7 @@ import qualified TerraGlide.GUI              as GUI
 import           TerraGlide.State            (State (..), debug, environment,
                                               gui, mainCamera,
                                               mainCameraNavigation,
+                                              reflectionFramebuffer,
                                               refractionFramebuffer, terrain,
                                               water)
 import qualified TerraGlide.Terrain          as Terrain
@@ -62,6 +63,9 @@ onFrame viewer (Frame duration viewport) state = do
     -- Calculate some values. Start by picking out the refraction framebuffer.
     let refraction = state ^. refractionFramebuffer
 
+        -- Pick out the reflection framebuffer.
+        reflection = state ^. reflectionFramebuffer
+
         -- Calculate the main projection matrix, the projection used for
         -- the rendering of the the main scene.
         mainProjMatrix = mkPerspectiveMatrix (Degrees 45) viewport 1 2000
@@ -77,8 +81,14 @@ onFrame viewer (Frame duration viewport) state = do
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
 
+        -- We need a separate underwater camera for the reflection rendering.
+        reflectionCamera = mkUnderwaterCamera (state ^. environment) newCamera
+
         -- Calculate the main view matrix.
         mainViewMatrix = Camera.matrix newCamera
+
+        -- Calculate the reflection view matrix.
+        reflectionViewMatrix = Camera.matrix reflectionCamera
 
         -- Get the standard terrain rendering.
         standardTerrain = Terrain.getStandardTerrain mainProjMatrix
@@ -92,20 +102,27 @@ onFrame viewer (Frame duration viewport) state = do
                                                          (state ^. environment)
                                                          (state ^. terrain)
 
+        -- Get the reflection terrain rendering.
+        reflectionTerrain = Terrain.getReflectionTerrain fbProjMatrix
+                                                         reflectionViewMatrix
+                                                         (state ^. environment)
+                                                         (state ^. terrain)
+
         -- Get the water surface.
         waterSurface = Water.getWaterSurface mainProjMatrix
-                                             mainViewMatrix (colorTexture refraction)
+                                             mainViewMatrix
+                                             (colorTexture refraction)
                                              (state ^. environment)
                                              (state ^. water)
 
         textureDisplay = GUI.getTextureDisplay (framebufferViewport refraction)
-                                               viewport (colorTexture refraction)
+                                               viewport (colorTexture reflection)
                                                (state ^. gui)
 
     -- Log the camera position.
     debugCamera viewer state newCamera
 
-    -- Construct the new 'Scene'.
+    -- Construct the new 'Scene'. Three renderings.
     setScene viewer <|
         Scene
             { sceneSettings = []
@@ -117,13 +134,21 @@ onFrame viewer (Frame duration viewport) state = do
                     , renderingBuffer = Just refraction
                     , renderingEntities = refractionTerrain
                     , nextRendering = Just <|
-                        Rendering -- Rendering of the final display view.
+                        Rendering -- Rendering of the reflection texture.
                             { renderingSettings =
                                 [ Clear [ColorBufferBit, DepthBufferBit]
                                 ]
-                            , renderingBuffer = Nothing
-                            , renderingEntities = standardTerrain ++ [waterSurface, textureDisplay]
-                            , nextRendering = Nothing
+                            , renderingBuffer = Just reflection
+                            , renderingEntities = reflectionTerrain
+                            , nextRendering = Just <|
+                                Rendering -- Rendering of the final display view.
+                                    { renderingSettings =
+                                        [ Clear [ColorBufferBit, DepthBufferBit]
+                                        ]
+                                        , renderingBuffer = Nothing
+                                        , renderingEntities = standardTerrain ++ [waterSurface, textureDisplay]
+                                        , nextRendering = Nothing
+                                    }
                             }
                     }
             }
@@ -239,6 +264,6 @@ debugCamera viewer state camera =
         debugLog viewer state str
 
 mkUnderwaterCamera :: Environment -> Camera -> Camera
-mkUnderwaterCamera environment camera =
-    let diff = camera ^. Camera.position . _y - environment ^. waterHeight
-    in Camera.flipViewElevation <| Camera.down diff camera
+mkUnderwaterCamera env camera =
+    let diff = camera ^. Camera.position . _y - env ^. waterHeight
+    in Camera.flipViewElevation <| Camera.down (2 * diff) camera
