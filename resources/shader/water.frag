@@ -26,7 +26,7 @@ uniform float waveMove;
 // The resulting output color.
 out vec4 color;
 
-const float waveLength = 0.015;
+const float waveLength = 0.005;
 
 void main()
 {
@@ -54,6 +54,6 @@ void main()
   vec3 reflection = texture2D(reflectionTexture, reflectionCoord).rgb;
 
   // Mix the water color with the refraction texture.
-  color = vec4(mix(refraction, reflection, 0.5), 1);
+  color = vec4(mix(refraction, reflection, 0.4), 1);
   //color = vec4(dudv, 1);
 }
