@@ -81,6 +81,9 @@ onFrame viewer (Frame duration viewport) state = do
                                              (state ^. mainCameraNavigation)
                                              (state ^. mainCamera)
 
+        -- Also animate the water.
+        newWater = Water.animate (realToFrac duration) <| state ^. water
+
         -- We need a separate underwater camera for the reflection rendering.
         reflectionCamera = mkUnderwaterCamera (state ^. environment) newCamera
 
@@ -114,7 +117,7 @@ onFrame viewer (Frame duration viewport) state = do
                                              (colorTexture refraction)
                                              (colorTexture reflection)
                                              (state ^. environment)
-                                             (state ^. water)
+                                             newWater
 
         textureDisplay = GUI.getTextureDisplay (framebufferViewport refraction)
                                                viewport (colorTexture reflection)
@@ -155,7 +158,7 @@ onFrame viewer (Frame duration viewport) state = do
             }
 
     -- We're done. Update the 'State' with stuff that need to be updated.
-    return $! mainCamera .~ newCamera <| state
+    return $! mainCamera .~ newCamera <| water .~ newWater <| state
 
 -- This shall never happen.
 onFrame viewer _ state =

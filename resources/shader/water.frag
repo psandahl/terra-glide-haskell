@@ -21,6 +21,8 @@ uniform sampler2D reflectionTexture;
 // The DuDv texture.
 uniform sampler2D dudvTexture;
 
+uniform float waveMove;
+
 // The resulting output color.
 out vec4 color;
 
@@ -32,7 +34,8 @@ void main()
   vec2 texCoord = (clipSpace.xy / clipSpace.w) / 2 + 0.5;
 
   // Pick the DuDv distortion value.
-  vec2 dist = (texture2D(dudvTexture, dudvCoord).rg * 2 - 1) * waveLength;
+  vec2 dist =
+    (texture2D(dudvTexture, vec2(dudvCoord.x + waveMove, dudvCoord.y + waveMove)).rg * 2 - 1) * waveLength;
 
   vec2 refractionCoord = texCoord + dist;
   vec2 reflectionCoord = vec2(texCoord.s, 1 - texCoord.t) + dist;

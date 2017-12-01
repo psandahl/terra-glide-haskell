@@ -2,6 +2,7 @@
 module TerraGlide.Water
     ( Water
     , init
+    , animate
     , getWaterSurface
     ) where
 
@@ -21,6 +22,7 @@ data Water = Water
     { program     :: !Program
     , mesh        :: !Mesh
     , dudvTexture :: !Texture
+    , waveMove    :: !GLfloat
     } deriving Show
 
 init :: Viewer -> IO (Either String Water)
@@ -34,6 +36,7 @@ init viewer = do
                 Right Water { program = program'
                             , mesh = mesh'
                             , dudvTexture = dudvTexture'
+                            , waveMove = 0
                             }
 
         (Left err, _, _) ->
@@ -44,6 +47,10 @@ init viewer = do
 
         (_, _, Left err) ->
             return <| Left err
+
+animate :: GLfloat -> Water -> Water
+animate duration water =
+    water { waveMove = duration * 0.05 + waveMove water }
 
 getWaterSurface :: M44 GLfloat -> M44 GLfloat -> Texture -> Texture -> Environment -> Water -> Entity
 getWaterSurface projMatrix viewMatrix refractionTexture reflectionTexture environment water =
@@ -60,6 +67,7 @@ getWaterSurface projMatrix viewMatrix refractionTexture reflectionTexture enviro
                 , UniformValue "refractionTexture" (0 :: GLint)
                 , UniformValue "reflectionTexture" (1 :: GLint)
                 , UniformValue "dudvTexture" (2 :: GLint)
+                , UniformValue "waveMove" <| waveMove water
                 ]
             , entityTextures =
                 [ TextureBinding refractionTexture 0
@@ -80,6 +88,7 @@ loadProgram viewer =
             , "refractionTexture"
             , "reflectionTexture"
             , "dudvTexture"
+            , "waveMove"
             ]
 
 loadMesh :: Viewer -> IO (Either String Mesh)
