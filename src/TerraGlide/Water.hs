@@ -109,7 +109,7 @@ maxWater :: GLfloat
 maxWater = 1024
 
 dudvTile :: GLfloat
-dudvTile = 1
+dudvTile = 128
 
 maxTexCoord :: GLfloat
 maxTexCoord = maxWater / dudvTile
