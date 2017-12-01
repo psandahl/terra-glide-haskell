@@ -34,8 +34,11 @@ void main()
   vec2 texCoord = (clipSpace.xy / clipSpace.w) / 2 + 0.5;
 
   // Pick the DuDv distortion value.
-  vec2 dist =
-    (texture2D(dudvTexture, vec2(dudvCoord.x + waveMove, dudvCoord.y + waveMove)).rg * 2 - 1) * waveLength;
+  vec2 dist1 =
+    (texture2D(dudvTexture, vec2(dudvCoord.x + waveMove, dudvCoord.y)).rg * 2 - 1) * waveLength;
+  vec2 dist2 =
+    (texture2D(dudvTexture, vec2(-dudvCoord.x + waveMove, dudvCoord.y + waveMove)).rg * 2 - 1) * waveLength;
+  vec2 dist = dist1 + dist2;
 
   vec2 refractionCoord = texCoord + dist;
   vec2 reflectionCoord = vec2(texCoord.s, 1 - texCoord.t) + dist;
