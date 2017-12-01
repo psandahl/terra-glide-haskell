@@ -48,7 +48,7 @@ getStandardTerrain = getEntities [] (V4 0 0 0 0)
 
 getRefractionTerrain :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
 getRefractionTerrain proj view environment =
-    getEntities [ Enable (ClipDistance 0) ] (V4 0 (-1) 0 <| environment ^. waterHeight) proj view environment
+    getEntities [ Enable (ClipDistance 0) ] (V4 0 (-1) 0 <| 7 + environment ^. waterHeight) proj view environment
 
 getReflectionTerrain :: M44 GLfloat -> M44 GLfloat -> Environment -> Terrain -> [Entity]
 getReflectionTerrain proj view environment =
