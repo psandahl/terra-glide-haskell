@@ -24,21 +24,30 @@ uniform sampler2D dudvTexture;
 // The resulting output color.
 out vec4 color;
 
+const float waveLength = 0.015;
+
 void main()
 {
   // Make a texture coordinate/normalized device coordinate.
   vec2 texCoord = (clipSpace.xy / clipSpace.w) / 2 + 0.5;
 
   // Pick the DuDv distortion value.
-  vec3 dudv = texture2D(dudvTexture, dudvCoord).rgb;
+  vec2 dist = (texture2D(dudvTexture, dudvCoord).rg * 2 - 1) * waveLength;
+
+  vec2 refractionCoord = texCoord + dist;
+  vec2 reflectionCoord = vec2(texCoord.s, 1 - texCoord.t) + dist;
+
+  // Clamp the texture coordinates.
+  refractionCoord = clamp(refractionCoord, 0.001, 0.999);
+  reflectionCoord = clamp(reflectionCoord, 0.001, 0.999);
 
   // Pick the refraction color.
-  vec3 refraction = texture2D(refractionTexture, texCoord).rgb;
+  vec3 refraction = texture2D(refractionTexture, refractionCoord).rgb;
 
   // Pick the reflection color.
-  vec3 reflection = texture2D(reflectionTexture, vec2(texCoord.s, 1 - texCoord.t)).rgb;
+  vec3 reflection = texture2D(reflectionTexture, reflectionCoord).rgb;
 
   // Mix the water color with the refraction texture.
-  //color = vec4(mix(refraction, reflection, 0.5), 1);
-  color = vec4(dudv, 1);
+  color = vec4(mix(refraction, reflection, 0.5), 1);
+  //color = vec4(dudv, 1);
 }

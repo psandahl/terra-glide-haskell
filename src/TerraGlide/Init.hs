@@ -26,7 +26,7 @@ configuration options =
         , glVersionMinor = 3
         , displayMode = toDisplayMode <| fullScreen options
         , globalSettings =
-            [ SetClearColor 0 0 1 0
+            [ SetClearColor (114 / 255) (171 / 255) (245 / 255) 0
             , Enable DepthTest
             , SetDepthFunc Less
             , Enable CullFace

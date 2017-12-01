@@ -68,13 +68,13 @@ onFrame viewer (Frame duration viewport) state = do
 
         -- Calculate the main projection matrix, the projection used for
         -- the rendering of the the main scene.
-        mainProjMatrix = mkPerspectiveMatrix (Degrees 45) viewport 1 2000
+        mainProjMatrix = mkPerspectiveMatrix (Degrees 45) viewport 2 2000
 
         -- Calculate the framebuffer projection matrix, used for refraction and
         -- reflection rendering. Assume they have the same size.
         fbProjMatrix = mkPerspectiveMatrix (Degrees 45)
                                            (framebufferViewport refraction)
-                                           1 2000
+                                           2 2000
 
         -- Now, move the camera proportional to the frame duration.
         newCamera = CameraNavigation.animate (realToFrac duration)
