@@ -60,6 +60,8 @@ onEvent viewer _ Nothing = do
 -- TODO: Clean it up!
 onFrame :: Viewer -> Event -> State -> IO State
 onFrame viewer (Frame duration viewport) state = do
+    --debugLog viewer state <| printf "Duration: %f s" duration
+
     -- Calculate some values. Start by picking out the refraction framebuffer.
     let refraction = state ^. refractionFramebuffer
 
