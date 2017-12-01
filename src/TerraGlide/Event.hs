@@ -16,10 +16,9 @@ import           TerraGlide.CameraNavigation (backward, down, forward,
                                               turnRight, up)
 import qualified TerraGlide.CameraNavigation as CameraNavigation
 import           TerraGlide.Environment      (Environment, waterHeight)
-import qualified TerraGlide.GUI              as GUI
+--import qualified TerraGlide.GUI              as GUI
 import           TerraGlide.State            (State (..), debug, environment,
-                                              gui, mainCamera,
-                                              mainCameraNavigation,
+                                              mainCamera, mainCameraNavigation,
                                               reflectionFramebuffer,
                                               refractionFramebuffer, terrain,
                                               water)
@@ -121,9 +120,9 @@ onFrame viewer (Frame duration viewport) state = do
                                              (state ^. environment)
                                              newWater
 
-        textureDisplay = GUI.getTextureDisplay (framebufferViewport refraction)
-                                               viewport (colorTexture reflection)
-                                               (state ^. gui)
+        --textureDisplay = GUI.getTextureDisplay (framebufferViewport refraction)
+        --                                       viewport (colorTexture reflection)
+        --                                       (state ^. gui)
 
     -- Log the camera position.
     debugCamera viewer state newCamera
@@ -152,7 +151,7 @@ onFrame viewer (Frame duration viewport) state = do
                                         [ Clear [ColorBufferBit, DepthBufferBit]
                                         ]
                                         , renderingBuffer = Nothing
-                                        , renderingEntities = standardTerrain ++ [waterSurface, textureDisplay]
+                                        , renderingEntities = standardTerrain ++ [waterSurface]
                                         , nextRendering = Nothing
                                     }
                             }
