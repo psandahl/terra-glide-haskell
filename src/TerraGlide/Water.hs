@@ -90,10 +90,10 @@ loadMesh viewer =
 loadVertices :: Vector WithPosTex.Vertex
 loadVertices =
     fromList
-        [ WithPosTex.Vertex (V3 0 0 0) (V2 0 1)
-        , WithPosTex.Vertex (V3 1024 0 0) (V2 1 1)
-        , WithPosTex.Vertex (V3 0 0 1024) (V2 0 0)
-        , WithPosTex.Vertex (V3 1024 0 1024) (V2 1 0)
+        [ WithPosTex.Vertex (V3 0 0 0) (V2 0 maxTexCoord)
+        , WithPosTex.Vertex (V3 maxWater 0 0) (V2 maxTexCoord maxTexCoord)
+        , WithPosTex.Vertex (V3 0 0 maxWater) (V2 0 0)
+        , WithPosTex.Vertex (V3 maxWater 0 maxWater) (V2 maxTexCoord 0)
         ]
 
 loadIndices :: Vector GLuint
@@ -104,3 +104,12 @@ loadDudvMap :: Viewer -> IO (Either String Texture)
 loadDudvMap viewer =
     textureFromRequest viewer <|
         defaultTextureRequest "resources/texture/waterDUDV.png"
+
+maxWater :: GLfloat
+maxWater = 1024
+
+dudvTile :: GLfloat
+dudvTile = 1
+
+maxTexCoord :: GLfloat
+maxTexCoord = maxWater / dudvTile
