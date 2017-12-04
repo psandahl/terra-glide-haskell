@@ -50,7 +50,7 @@ init viewer = do
 
 animate :: GLfloat -> Water -> Water
 animate duration water =
-    water { waveMove = duration * 0.05 + waveMove water }
+    water { waveMove = duration * 0.04 + waveMove water }
 
 getWaterSurface :: M44 GLfloat -> M44 GLfloat -> Texture -> Texture -> Environment -> Water -> Entity
 getWaterSurface projMatrix viewMatrix refractionTexture reflectionTexture environment water =

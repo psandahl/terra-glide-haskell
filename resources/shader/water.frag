@@ -26,7 +26,7 @@ uniform float waveMove;
 // The resulting output color.
 out vec4 color;
 
-const float waveLength = 0.005;
+const float waveLength = 0.007;
 
 void main()
 {
